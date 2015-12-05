@@ -2,6 +2,7 @@
  "simulation": {
   "archetypes": {
    "spec": [
+    {"lib": "cycamore", "name": "DeployInst"}, 
     {"lib": "cycamore", "name": "Enrichment"}, 
     {"lib": "cycamore", "name": "Reactor"}, 
     {"lib": "cycamore", "name": "Source"}, 
@@ -85,7 +86,13 @@
    "config": {"NullRegion": null}, 
    "institution": {
     "name": "Acme",
-    "config": {"NullInst": null}, 
+    "config": {
+     "DeployInst": {
+      "prototypes": [{"val": "LWR"}],
+      "build_times": [{"val": 1}],
+      "n_build": [{"val": 0}]
+     }
+    }, 
     "initialfacilitylist": {
      "entry": [
       {"number": "1", "prototype": "Enricher"}, 
