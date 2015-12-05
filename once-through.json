@@ -32,6 +32,7 @@
    }, 
    {
     "name": "LWR",
+    "lifetime": 720,
     "config": {
      "Reactor": {
       "assem_size": 33000, 
