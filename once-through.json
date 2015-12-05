@@ -16,7 +16,7 @@
    {"name": "Enrich-Tails", "solution_priority": 1.0}, 
    {"name": "Used-UOX-Fuel", "solution_priority": 1.0}
   ], 
-  "control": {"duration": 600, "startmonth": 1, "startyear": 2015}, 
+  "control": {"duration": 600, "startmonth": 1, "startyear": 2016}, 
   "facility": [
    {
     "name": "Enricher",
