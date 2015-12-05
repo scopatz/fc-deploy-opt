@@ -19,6 +19,7 @@
   "control": {"duration": 600, "startmonth": 1, "startyear": 2015}, 
   "facility": [
    {
+    "name": "Enricher",
     "config": {
      "Enrichment": {
       "feed_commod": "U-ore", 
@@ -27,10 +28,10 @@
       "product_commod": "Fresh-UOX-Fuel", 
       "tails_commod": "Enrich-Tails"
      }
-    }, 
-    "name": "EnrichPlant"
+    } 
    }, 
    {
+    "name": "LWR",
     "config": {
      "Reactor": {
       "assem_size": 33000, 
@@ -44,13 +45,12 @@
       "power_cap": 1000, 
       "refuel_time": 1
      }
-    }, 
-    "name": "ALWR"
+    }
    }, 
    {"config": {"Source": {"outcommod": "U-ore"}}, "name": "Mine"}, 
    {
-    "config": {"Sink": {"in_commods": {"val": "Used-UOX-Fuel"}}}, 
-    "name": "NuclearUnderground"
+    "name": "DGR",
+    "config": {"Sink": {"in_commods": {"val": "Used-UOX-Fuel"}}}
    }
   ], 
   "recipe": [
@@ -69,8 +69,8 @@
      {"comp": 0.96, "id": "U238"}]
    }, 
    {
-    "basis": "mass", 
     "name": "UF-UOX", 
+    "basis": "mass", 
     "nuclide": [
      {"comp": 0.011, "id": "U-235"}, 
      {"comp": 0.940, "id": "U-238"}, 
@@ -80,20 +80,20 @@
    }
   ], 
   "region": {
+   "name": "Utopia",
    "config": {"NullRegion": null}, 
    "institution": {
+    "name": "Acme",
     "config": {"NullInst": null}, 
     "initialfacilitylist": {
      "entry": [
-      {"number": "1", "prototype": "EnrichPlant"}, 
-      {"number": "5", "prototype": "ALWR"}, 
-      {"number": "1", "prototype": "U mine"}, 
-      {"number": "1", "prototype": "NuclearUnderground"}
+      {"number": "1", "prototype": "Enricher"}, 
+      {"number": "5", "prototype": "LWR"}, 
+      {"number": "1", "prototype": "Mine"}, 
+      {"number": "1", "prototype": "DGR"}
      ]
-    }, 
-    "name": "MyNucCo"
-   }, 
-   "name": "Nuclandia"
+    }
+   }
   } 
  }
 }
