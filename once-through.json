@@ -7,8 +7,7 @@
     {"lib": "cycamore", "name": "Reactor"}, 
     {"lib": "cycamore", "name": "Source"}, 
     {"lib": "cycamore", "name": "Sink"}, 
-    {"lib": "agents", "name": "NullRegion"}, 
-    {"lib": "agents", "name": "NullInst"}
+    {"lib": "agents", "name": "NullRegion"}
    ]
   }, 
   "commodity": [
