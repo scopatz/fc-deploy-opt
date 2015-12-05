@@ -1,0 +1,99 @@
+{
+ "simulation": {
+  "archetypes": {
+   "spec": [
+    {"lib": "cycamore", "name": "Enrichment"}, 
+    {"lib": "cycamore", "name": "Reactor"}, 
+    {"lib": "cycamore", "name": "Source"}, 
+    {"lib": "cycamore", "name": "Sink"}, 
+    {"lib": "agents", "name": "NullRegion"}, 
+    {"lib": "agents", "name": "NullInst"}
+   ]
+  }, 
+  "commodity": [
+   {"name": "U-ore", "solution_priority": 1.0}, 
+   {"name": "Fresh-UOX-Fuel", "solution_priority": 1.0}, 
+   {"name": "Enrich-Tails", "solution_priority": 1.0}, 
+   {"name": "Used-UOX-Fuel", "solution_priority": 1.0}
+  ], 
+  "control": {"duration": 600, "startmonth": 1, "startyear": 2015}, 
+  "facility": [
+   {
+    "config": {
+     "Enrichment": {
+      "feed_commod": "U-ore", 
+      "feed_recipe": "NU", 
+      "max_feed_inventory": 1e6, 
+      "product_commod": "Fresh-UOX-Fuel", 
+      "tails_commod": "Enrich-Tails"
+     }
+    }, 
+    "name": "EnrichPlant"
+   }, 
+   {
+    "config": {
+     "Reactor": {
+      "assem_size": 33000, 
+      "cycle_time": 18, 
+      "fuel_incommods": {"val": "Fresh-UOX-Fuel"}, 
+      "fuel_inrecipes": {"val": "FF-UOX"}, 
+      "fuel_outcommods": {"val": "Used-UOX-Fuel"}, 
+      "fuel_outrecipes": {"val": "UF-UOX"}, 
+      "n_assem_batch": 1, 
+      "n_assem_core": 3, 
+      "power_cap": 1000, 
+      "refuel_time": 1
+     }
+    }, 
+    "name": "ALWR"
+   }, 
+   {"config": {"Source": {"outcommod": "U-ore"}}, "name": "Mine"}, 
+   {
+    "config": {"Sink": {"in_commods": {"val": "Used-UOX-Fuel"}}}, 
+    "name": "NuclearUnderground"
+   }
+  ], 
+  "recipe": [
+   {
+    "name": "NU", 
+    "basis": "mass", 
+    "nuclide": [
+     {"comp": 0.007, "id": "U235"}, 
+     {"comp": 0.993, "id": "U238"}]
+   }, 
+   {
+    "name": "FF-UOX", 
+    "basis": "mass", 
+    "nuclide": [
+     {"comp": 0.04, "id": "U235"}, 
+     {"comp": 0.96, "id": "U238"}]
+   }, 
+   {
+    "basis": "mass", 
+    "name": "UF-UOX", 
+    "nuclide": [
+     {"comp": 0.011, "id": "U-235"}, 
+     {"comp": 0.940, "id": "U-238"}, 
+     {"comp": 0.009, "id": "Pu-239"}, 
+     {"comp": 0.040, "id": "Cs-137"}
+    ]
+   }
+  ], 
+  "region": {
+   "config": {"NullRegion": null}, 
+   "institution": {
+    "config": {"NullInst": null}, 
+    "initialfacilitylist": {
+     "entry": [
+      {"number": "1", "prototype": "EnrichPlant"}, 
+      {"number": "5", "prototype": "ALWR"}, 
+      {"number": "1", "prototype": "U mine"}, 
+      {"number": "1", "prototype": "NuclearUnderground"}
+     ]
+    }, 
+    "name": "MyNucCo"
+   }, 
+   "name": "Nuclandia"
+  } 
+ }
+}
