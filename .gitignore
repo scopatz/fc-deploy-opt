@@ -1,4 +1,7 @@
+# custom
 *.h5
+sim.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 .ipynb_checkpoints/
