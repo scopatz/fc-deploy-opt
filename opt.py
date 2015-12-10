@@ -15,8 +15,6 @@ import cymetric as cym
 
 import dtw
 
-with open('once-through.json') as f:
-    BASE_SIM = json.load(f)
 DURATION = BASE_SIM['simulation']['control']['duration']
 YEARS = ceil(DURATION / 12)
 MONTH_SHUFFLE = (1, 7, 10, 4, 8, 6, 12, 2, 5, 9, 11, 3)
@@ -25,14 +23,17 @@ NULL_SCHEDULE = {'build_times': [{'val': 1}],
                  'prototypes': [{'val': 'LWR'}]}
 LWR_PROTOTYPE = {'val': 'LWR'}
 OPT_H5 = 'opt.h5'
+SIM_JSON = 'sim.json'
+OT_JSON = 'once-through.json'
 
+BASE_SIMS = {}
 
-# In[3]:
-
-BASE_SIM['simulation']['region']['institution']['config']['DeployInst']
-
-
-# In[4]:
+def base_sim(basename):
+    if basename not in BASE_SIMS:
+        with open(basename) as f:
+            BASE_SIMS[basename] = json.load(f)
+    sim = deepcopy(BASE_SIMS[basename])
+    return sim
 
 def deploy_inst_schedule(Θ):
     if np.sum(Θ) == 0: 
@@ -53,30 +54,19 @@ def deploy_inst_schedule(Θ):
         m = (m + 1) % 12
     return sched
 
-def make_sim(Θ, fname='sim.json'):
+def make_sim(Θ, basename=OT_JSON, inpname=SIM_JSON):
     sim = deepcopy(BASE_SIM)
     inst = sim['simulation']['region']['institution']
     inst['config']['DeployInst'] = deploy_inst_schedule(Θ)
-    with open(fname, 'w') as f:
+    with open(inpname, 'w') as f:
         json.dump(sim, f)
     return sim
 
-
-# In[5]:
-
-s = make_sim([])
-
-
-# In[6]:
-
-s['simulation']['region']['institution']['config']['DeployInst']
 
 
 # Simulate
 # =========
 # Now let's build some tools to run simulations and extract a GWe time series.
-
-# In[7]:
 
 def run(fname='sim.json', out=OPT_H5):
     """Runs a simulation and returns the sim id."""
@@ -102,100 +92,50 @@ def extract_gwe(simid, out=OPT_H5):
 
 # Distancing
 # ========
-# Now let's build some tools to distance between a GWe time series and a demand curve.
+# Now let's build some tools to distance between a GWe time series and 
+# a demand curve.
 
-# In[8]:
+#DEFAULT_DEMAND = 90 * (1.01**np.arange(YEARS))  # 1% growth
 
-DEFAULT_DEMAND = 90 * (1.01**np.arange(YEARS))  # 1% growth
-
-
-# In[9]:
-
-def d(g, f=None):
-    """The dynamic time warping distance between a GWe time series and a demand curve."""
-    f = DEFAULT_DEMAND if f is None else f
+def d(f, g):
+    """The dynamic time warping distance between a GWe time series and a 
+    demand curve.
+    """
     rtn = dtw.distance(f[:, np.newaxis], g[:, np.newaxis])
     return rtn
 
-def αd(g, f=None, dtol=1e-5):
-    """Computes the mininmal α and the DTW d."""
-    f = DEFAULT_DEMAND if f is None else f
-    C = dtw.cost_matrix(f[:, np.newaxis], g[:, np.newaxis])
-    d = dtw.distance(cost=C)
-    #d_t = np.diagonal(C) / (np.arange(1, C.shape[0] + 1) + np.arange(1, C.shape[1] + 1))
-    d_t = np.diagonal(C) / np.sum(C.shape)
-    #α = np.argwhere(np.cumsum(d_t <= dtol) != np.arange(1, len(d_t) + 1))[0,0]
-    filt = np.argwhere(d_t <= dtol)
-    α = filt[-1,-1] if len(filt) > 0 else 0
-    #α = filt[0,0] if len(filt) > 0 else 0
-    print("Simulation α", α)
-    print("Simulation d(t)", d_t)
-    return α, d
-
-def gwed(Θ, f=None, dtol=1e-5, find_α=False):
-    """For a given deployment schedule Θ, return the GWe time series and the distance 
-    to the demand function f.
+def gwed(Θ, f, simid_s, **state):
+    """For a given deployment schedule Θ, return the GWe time series and 
+    the distance to the demand function f.
     """
-    make_sim(Θ)
-    simid = run()
-    gwe = extract_gwe(simid)
-    if find_α:
-        rtn = αd(gwe, f=f, dtol=dtol)
-    else:
-        rtn = d(gwe, f=f)
-    return (gwe,) + rtn
+    make_sim(Θ, **state)
+    simid = run(**state)
+    simid_s.append(simid)
+    gwe = extract_gwe(simid, **state)
+    d_s = d(f, gwe)
+    return gwe, d_s
 
 
-# Initialize Optimization
-# ===============
-# Now let's start with a couple of simple simulations
+#N = np.asarray(np.ceil(4*(1.01)**np.arange(YEARS)), dtype=int)  # max annual deployments
 
-# In[10]:
-
-N = np.asarray(np.ceil(4*(1.01)**np.arange(YEARS)), dtype=int)  # max annual deployments
-Θs = [] # deployment schedules
-G = []  # GWe per sim
-D = []  # distances per sim
-if os.path.isfile(OPT_H5):
-    os.remove(OPT_H5)
-
-
-# In[11]:
-
-def add_sim(Θ, f=None, dtol=1e-5):
-    """Add a simulation to the known simulations by performing the simulation."""
-    g_s, α, d_s = gwed(Θ, f=f, dtol=dtol, find_α=True)
+def add_sim(Θ, f, Θs, G, D, Θ_s, G_s, D_s, sim_time_s, **state):
+    """Add a simulation to the known simulations by performing the simulation.
+    """
+    t0 = time.time()
+    g_s, d_s = gwed(Θ, f=f, **state)
     Θs.append(Θ)
     G.append(g_s)
     D.append(d_s)
-    return α
-
-
-# First, add a schedule where nothing is deployed, leaving the initial facilities to retire.
-
-# In[12]:
-
-add_sim(np.zeros(YEARS, dtype=int))
-
-
-# Next, add a simulation that is the max deployment schedule to bound the space
-
-# In[13]:
-
-add_sim(N)
+    Θ_s.append(Θ)
+    G_s.append(g_s)
+    D_s.append(d_s)
+    t1 = time.time()
+    sim_time_s.append(t1 - t0)
 
 
 # Optimizer
 # =======
 # Now let's add some tools to do the estimation phase of the optimization.
-
-# In[14]:
-
-Γ = 285
-np.random.seed(424242)
-
-
-# In[15]:
 
 def gp_gwe(Θs, G, α, T=None, tol=1e-6, verbose=False):
     """Create a Gaussian process regression model for GWe."""
@@ -350,21 +290,28 @@ def estimate(Θs, G, D, N, Nlower, Γ, α, T=None, tol=1e-6, verbose=False, meth
     return Θ
 
 def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6, 
-             method_0='all', verbose=False):
+             method_0='all', inpname=SIM_JSON, dbname=OPT_H5, verbose=False,
+             seed=None):
     # state initialization
-    state = {'f': f, 'N': N, 'verbose': verbose, 'z': z, 's': 0}
+    state = {'f': f, 'N': N, 'verbose': verbose, 'z': z, 's': 0, 'seed': seed,
+             'inpname': inpname, 'dbname': dbname}
     M = state['M'] = np.zeros(len(N), dtype=int)
     Γ = state['Γ'] = int(np.sum(N - M)) if Γ is None else Γ
+    if os.path.isfile(dbname):
+        os.remove(dbname)
+    if seed is not None:
+        np.random.seed(seed)
     # horizon init
     Θs = state['Θs'] = []
     G = state['G'] = []
     D = state['D'] = []
     # per simulation init
-    Θs_s = state['Θs_s'] = []
+    Θ_s = state['Θ_s'] = []
     G_s = state['G_s'] = []
     D_s = state['D_s'] = []
     est_time_s = state['est_time_s'] = []
     sim_time_s = state['sim_time_s'] = []
+    simid_s = state['simid_s'] = []
     method_s = state['method_s'] = [method_0]*2
     # run initial conditions
     add_sim(M, **start)  # lower bound
