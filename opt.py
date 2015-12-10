@@ -29,6 +29,7 @@ OT_JSON = 'once-through.json'
 BASE_SIMS = {}
 
 def base_sim(basename):
+    """A cached base simulator."""
     if basename not in BASE_SIMS:
         with open(basename) as f:
             BASE_SIMS[basename] = json.load(f)
