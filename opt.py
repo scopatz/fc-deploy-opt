@@ -281,14 +281,21 @@ def str_current(state):
     i = s - 1
     x = 'Simulation {0}\n'.format(s)
     x += '-'*(len(x) - 1) + '\n'
+    x += 'SimId {0}'.format(state['simid_s'][i])
     x += 'hyperparameters: {0}\n'.format(state['hyperparameters_s'][i])
     x += 'Estimate method is {0!r}\n'.format(state['method_s'][i])
     x += 'Estimate winner is {0!r}\n'.format(state['winner_s'][i])
+    estt = state['est_time_s'][i]
+    x += 'Estimate time:   {0} min {1} sec\n'.format(estt//60, estt%60))
+    simt = state['sim_time_s'][i]
+    x += 'Simulation time: {0} min {1} sec\n'.format(simt//60, simt%60))
+    x += 'D: {0}\n'.format(D)
     return x
 
 def print_current(state):
     """Prints the most recent iteration."""
     print(str_current(state))
+    sys.stdout.flush()
 
 def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6, 
              method_0='all', basename=OT_JSON, inpname=SIM_JSON, 
@@ -328,16 +335,13 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
         # estimate and run sim
         Θ = estimate(**state)
         add_sim(Θ, **state)
-        print('Estimate time:   {0} min {1} sec'.format((t1-t0)//60, (t1-t0)%60))
-        print('Simulation time: {0} min {1} sec'.format((t2-t1)//60, (t2-t1)%60))
-        print(D)
-        sys.stdout.flush()
+        # figure out if this was worth doing
         idx = [int(i) for i in np.argsort(D)[:z]]
         if D[-1] == max(D):
             idx.append(-1)
-        Θs = [Θs[i] forz i in idx]
-        G = [G[i] for i in idx]
-        D = [D[i] for i in idx]
+        Θs = state['Θs'] = [Θs[i] for i in idx]
+        G = state['G'] = [G[i] for i in idx]
+        D = state['D'] = [D[i] for i in idx]
         s = state['s'] = (s + 1)
         if verbose:
             print_current(state)
