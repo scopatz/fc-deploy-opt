@@ -1,4 +1,51 @@
 \section{Introduction}
 \label{intro}
-here couples Gaussian process models (GP) \cite{rasmussen2006gaussian} to 
-dynamic time warping (DTW) \cite{muller}.
+
+With the recent advent of agent-based nuclear fuel cycle simulators, such as 
+Cyclus \cite{DBLP:journals/corr/HuffGCFMOSSW15,cyclus_v1_0}, there comes the 
+possibility to make \emph{in situ} facility deployment decisions. This 
+agency would more fully model real-world fuel cycles, where institutions
+predict future demand and choose their future deployment schedules 
+approriately. However, one of the major challenges to making \emph{in situ}
+deployment decisions is the speed at which ``good enough'' decisions can 
+be made. This paper proposes three related deployment-specific optimization 
+algorithims that can be used for any facility type.
+
+The demands of a fuel cycle scenario can often be simply stated, e.g. 
+1\% growth in power production [GWe]. Picking a deployment schedule for a 
+certain kind of facility (e.g. reactors) can thus be seen as an optimization 
+problem of how well the deployment schedule meets the demand. Here, the 
+dynamic time warping (DTW) \cite{muller} distance is minimized 
+between the demand curve and the regression of a Gaussian Process model (GP) 
+\cite{rasmussen2006gaussian} of prior simulations. This minimization produces
+a guess for a deployment schedule which is subsequently tested using 
+the actual simulator. This process is repeated until an optimal deployment
+schedule for the given demand is found.
+
+Importantly, by using the Gaussian process surrogates, the number of 
+simulation realizations that must be executed as part of the optimization is 
+reduced to only a handful. Furthermore, it is at least two 
+orders-of-magnitude faster to test the model than it is to run a single
+low-fidelity fuel cycle simulation. Because of the realtive cheapness, it 
+is suitable to be used inside of a fuel cycle simulation. Traditional
+\emph{ex situ} optimizers may be able to find more precise solutions but at a
+computational cost beyond the scope and need of an \emph{in situ} use case.
+
+Every iteration of warp optimization of regressed Gaussian processes (WORG) 
+method described here has two phases. The first is an esitmation phase where 
+the Gaussian process model is built and evaluated. The second takes the 
+deployment schedule from the estimation phase and run it in a fuel cycle 
+simulator. The results of the simulator of the $s$-th iteration are then 
+used to inform the model on the $(s+1)$-th iteration. 
+
+Inside of each estimation phase there are three possible strategies for 
+chosing the next deployment schedule.  The first is to sample of the 
+space of all possible deployment strategies stochatically and then take the 
+best guess.  The second is to search through the inner product of all choices,
+picking the best option for each deployment parameter. The third option 
+is to perform the previous two strategies and determine which one picked
+has the better guess.
+
+
+Challenges with this formulation
+inetger capacities, discrete deployments, no jacobian, combinatorical
