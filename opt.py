@@ -15,8 +15,6 @@ import cymetric as cym
 
 import dtw
 
-DURATION = BASE_SIM['simulation']['control']['duration']
-YEARS = ceil(DURATION / 12)
 MONTH_SHUFFLE = (1, 7, 10, 4, 8, 6, 12, 2, 5, 9, 11, 3)
 NULL_SCHEDULE = {'build_times': [{'val': 1}], 
                  'n_build': [{'val': 0}], 
@@ -37,7 +35,7 @@ def base_sim(basename):
     return sim
 
 def deploy_inst_schedule(Θ):
-    if np.sum(Θ) == 0: 
+    if np.sum(Θ) == 0:
         return NULL_SCHEDULE
     sched = {'build_times': {'val': []},
              'n_build': {'val': []},
@@ -55,8 +53,8 @@ def deploy_inst_schedule(Θ):
         m = (m + 1) % 12
     return sched
 
-def make_sim(Θ, basename=OT_JSON, inpname=SIM_JSON):
-    sim = deepcopy(BASE_SIM)
+def make_sim(Θ, basename=OT_JSON, inpname=SIM_JSON, **state):
+    sim = base_sim(basename)
     inst = sim['simulation']['region']['institution']
     inst['config']['DeployInst'] = deploy_inst_schedule(Θ)
     with open(inpname, 'w') as f:
@@ -64,30 +62,33 @@ def make_sim(Θ, basename=OT_JSON, inpname=SIM_JSON):
     return sim
 
 
-
 # Simulate
 # =========
 # Now let's build some tools to run simulations and extract a GWe time series.
 
-def run(fname='sim.json', out=OPT_H5):
+def run(inpname=SIM_JSON, dbname=OPT_H5):
     """Runs a simulation and returns the sim id."""
-    cmd = ['cyclus', '--warn-limit', '0', '-o', out, fname]
-    proc = subprocess.run(cmd, check=True, universal_newlines=True, stdout=subprocess.PIPE)
+    cmd = ['cyclus', '--warn-limit', '0', '-o', dbname, inpname]
+    proc = subprocess.run(cmd, check=True, universal_newlines=True, 
+                          stdout=subprocess.PIPE)
     simid = proc.stdout.rsplit(None, 1)[-1]
     return simid
 
-ZERO_GWE = pd.DataFrame({'GWe': np.zeros(YEARS)}, index=np.arange(YEARS))
-ZERO_GWE.index.name = 'Time'
+month_to_year = lambda x: x//12
+mwe_month_to_gwe_year = lambda x: 1e-3*x/12
 
-def extract_gwe(simid, out=OPT_H5):
+def extract_gwe(simid, T, dbname=OPT_H5, **state):
     """Computes the annual GWe for a simulation."""
-    with cym.dbopen(out) as db:
+    zero_gwe = pd.DataFrame({'GWe': np.zeros(T)}, index=np.arange(T))
+    zero_gwe.index.name = 'Time'
+    with cym.dbopen(dbname) as db:
         evaler = cym.Evaluator(db)
-        raw = evaler.eval('TimeSeriesPower', conds=[('SimId', '==', uuid.UUID(simid))])
-    ano = pd.DataFrame({'Time': raw.Time.apply(lambda x: x//12), 
-                        'GWe': raw.Value.apply(lambda x: 1e-3*x/12)})
+        raw = evaler.eval('TimeSeriesPower', 
+                          conds=[('SimId', '==', uuid.UUID(simid))])
+    ano = pd.DataFrame({'Time': raw.Time.apply(month_to_year), 
+                        'GWe': raw.Value.apply(mwe_month_to_gwe_year)})
     gwe = ano.groupby('Time').sum()
-    gwe = (gwe + ZERO_GWE).fillna(0.0)
+    gwe = (gwe + zero_gwe).fillna(0.0)
     return np.array(gwe.GWe)
 
 
@@ -265,16 +266,19 @@ def guess_scheds_loop(Θs, gp, y, N, Nlower):
     print('hyperparameters', gp.kernel[:])
     return Θ, np.min(d_p)
 
-def estimate(Θs, G, D, N, Nlower, Γ, α, T=None, tol=1e-6, verbose=False, method='stochastic'):
+def estimate(est_time_s, winner_s, **state):
     """Runs an estimation step, returning a new deployment schedule."""
-    gp, x, y = gp_gwe(Θs, G, α, T=T, tol=tol, verbose=verbose)
+    t0 = time.time()
+    gp, x, y = gp_gwe(**state)
     if method == 'stochastic':
         # orig
         W = weights(Θs, D, N, Nlower, α, tol=tol, verbose=verbose)
         Θ, dmin = guess_scheds(Θs, W, Γ, gp, y, α, T=T)
+        winner = 'stochastic'
     elif method == 'inner-prod':
         # inner prod
         Θ, dmin = guess_scheds_loop(Θs, gp, y, N, Nlower)
+        winner = 'inner-prod'
     elif method == 'all':
         W = weights(Θs, D, N, Nlower, α, tol=tol, verbose=verbose)
         Θ_stoch, dmin_stoch = guess_scheds(Θs, W, Γ, gp, y, α, T=T)
@@ -283,20 +287,36 @@ def estimate(Θs, G, D, N, Nlower, Γ, α, T=None, tol=1e-6, verbose=False, meth
             winner = 'stochastic'
             Θ = Θ_stoch
         else:
-            winner = 'inner'
+            winner = 'inner-prod'
             Θ = Θ_inner
-        print('Estimate winner is {}'.format(winner))
     else:
         raise ValueError('method {} not known'.format(method))
+    t1 = time.time()
+    est_time_s.append(t1 - t0)
+    winner_s.append(winner)
     return Θ
 
+def str_current(state):
+    """Prints the most recent iteration."""
+    s = state['s']
+    x = 'Simulation {0}\n'.format(s)
+    x += '-'*(len(x) - 1) + '\n'
+    x += 'Estimate method is {0!r}\n'.format(state['method_s'][s])
+    x += 'Estimate winner is {0!r}\n'.format(state['winner_s'][s])
+    return x
+
+def print_current(state):
+    """Prints the most recent iteration."""
+    print(str_current(state))
+
 def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6, 
-             method_0='all', inpname=SIM_JSON, dbname=OPT_H5, verbose=False,
-             seed=None):
+             method_0='all', basename=OT_JSON, inpname=SIM_JSON, 
+             dbname=OPT_H5, verbose=False, seed=None):
     # state initialization
     state = {'f': f, 'N': N, 'verbose': verbose, 'z': z, 's': 0, 'seed': seed,
-             'inpname': inpname, 'dbname': dbname}
-    M = state['M'] = np.zeros(len(N), dtype=int)
+             'basename': basename, 'inpname': inpname, 'dbname': dbname}
+    T = state['T'] = len(N) if T is None else T
+    M = state['M'] = np.zeros(T, dtype=int)
     Γ = state['Γ'] = int(np.sum(N - M)) if Γ is None else Γ
     if os.path.isfile(dbname):
         os.remove(dbname)
@@ -314,19 +334,18 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
     sim_time_s = state['sim_time_s'] = []
     simid_s = state['simid_s'] = []
     method_s = state['method_s'] = [method_0]*2
+    winner_s = state['winner_s'] = [method_0]*2
     # run initial conditions
     add_sim(M, **start)  # lower bound
     add_sim(N, **start)  # upper bound
     while MAX_D < D[-1] and s < MAX_S:
-        print(s)
-        print('-'*18)
-        Gprev = np.array(G[:z])
-        t0 = time.time()
-        method = 'stochastic' if s%4 < 2 else 'all'
-        Θ = estimate(Θs, G, D, N, M, Γ, T=T, tol=tol, verbose=verbose, method=method)
-        t1 = time.time()
-        α_s = add_sim(Θ, dtol=dtol)
-        t2 = time.time()
+        # set estimation method
+        method_s.append(method_0)
+        if method_0 == 'all' and (s%4 < 2):
+            method_s[-1] = 'stochastic'
+        # estimate and run sim
+        Θ = estimate(**state)
+        add_sim(Θ, **state)
         print('Estimate time:   {0} min {1} sec'.format((t1-t0)//60, (t1-t0)%60))
         print('Simulation time: {0} min {1} sec'.format((t2-t1)//60, (t2-t1)%60))
         print(D)
@@ -334,12 +353,10 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
         idx = [int(i) for i in np.argsort(D)[:z]]
         if D[-1] == max(D):
             idx.append(-1)
-        if (len(D) == idx[0] + 1):
-            print('Update α: {0} -> {1}'.format(α, α_s))
-            α = α_s
         Θs = [Θs[i] forz i in idx]
         G = [G[i] for i in idx]
         D = [D[i] for i in idx]
-        s += 1
-        print()
+        s = state['s'] = (s + 1)
+        if verbose:
+            print_current(state)
 
