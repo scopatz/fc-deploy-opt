@@ -287,6 +287,7 @@ def str_current(state):
     x += 'Estimate time:   {0} min {1} sec\n'.format(estt//60, estt%60)
     simt = state['sim_time_s'][i]
     x += 'Simulation time: {0} min {1} sec\n'.format(simt//60, simt%60)
+    x += 'D_s: {0}\n'.format(state['D_s'][i])
     x += 'D: {0}\n'.format(state['D'])
     return x
 
