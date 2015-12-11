@@ -139,45 +139,39 @@ def add_sim(Θ, f, Θs, G, D, Θ_s, G_s, D_s, sim_time_s, **state):
 # =======
 # Now let's add some tools to do the estimation phase of the optimization.
 
-def gp_gwe(Θs, G, α, T=None, tol=1e-6, verbose=False):
+def gp_gwe(Θs, G, T, tol, **state):
     """Create a Gaussian process regression model for GWe."""
     S = len(G)
-    T = YEARS if T is None else T
     t = np.arange(T)
-    P = len(Θs[0])
-    ndim = P + 1 - α
-    y_mean = np.mean(G)
-    y = np.concatenate(G)
+    P = len(N)
+    ndim = P + 1
     x = np.empty((S*T, ndim), dtype=int)
+    y = np.concatenate(G)
+    y_mean = np.mean(y)
     for i in range(S):
         x[i*T:(i+1)*T, 0] = t
-        x[i*T:(i+1)*T, 1:] = Θs[i][np.newaxis, α:]
+        x[i*T:(i+1)*T, 1:] = Θs[i][np.newaxis,:]
     yerr = tol * y_mean
-    #kernel = float(y_mean) * george.kernels.ExpSquaredKernel(1.0, ndim=ndim)
-    #for p in range(P):
-    #    kernel *= george.kernels.ExpSquaredKernel(1.0, ndim=ndim)
-    #kernel = float(y_mean) * george.kernels.Matern52Kernel(1.0, ndim=ndim)
     kernel = float(y_mean) * george.kernels.Matern32Kernel(1.0, ndim=ndim)
     gp = george.GP(kernel, mean=y_mean)
     gp.compute(x, yerr=yerr, sort=False)
-    gp.optimize(x, y, yerr=yerr, sort=False, verbose=verbose)
+    gp.optimize(x, y, yerr=yerr, sort=False, verbose=False)
     return gp, x, y
 
-def predict_gwe(Θ, gp, y, α, T=None):
+def predict_gwe(Θ, gp, y, T):
     """Predict GWe for a deployment schedule Θ and a GP."""
-    T = YEARS if T is None else T
     t = np.arange(T)
     P = len(Θ)
-    ndim = P + 1 - α
+    ndim = P + 1
     x = np.empty((T, ndim), dtype=int)
     x[:,0] = t
-    x[:,1:] = Θ[np.newaxis,α:]
+    x[:,1:] = Θ[np.newaxis,:]
     mu = gp.predict(y, x, mean_only=True)
     return mu
 
-def gp_d_inv(θ_p, D_inv, tol=1e-6, verbose=False):
+def gp_d_inv(θ_p, D_inv, tol=1e-6):
     """Computes a Gaussian process model for a deployment parameter."""
-    S = len(D)
+    S = len(D_inv)
     ndim = 1
     x = θ_p
     y = D_inv
@@ -189,120 +183,107 @@ def gp_d_inv(θ_p, D_inv, tol=1e-6, verbose=False):
     gp.optimize(x, y, yerr=yerr, sort=False, verbose=verbose)
     return gp, x, y
 
-def weights(Θs, D, N, Nlower, α, tol=1e-6, verbose=False):
+def weights_p_poisson(D, θ_p, range_p):
+    M_p = range_p[0]
+    N_p = range_p[-1]
+    p_min = np.argmin(D)
+    lam = θ_p[p_min]
+    fact = np.cumprod([1.0] + list(range(1, N_p + 1)))[M_p:N_p + 1]
+    weights_p = np.exp(-lam) * (lam**range_p) / fact
+    return weights_p
+
+def weights(Θs, D, M, N, Nlower, tol, **state):
     P = len(N)
     θ_ps = np.array(Θs)
     D = np.asarray(D)
     D_inv = D**-1 
-    W = [None] * α
-    for p in range(α, P):
+    W = []
+    for p in range(P):
         θ_p = θ_ps[:,p]
-        range_p = np.arange(Nlower[p], N[p] + 1)
-        gp, _, _ = gp_d_inv(θ_p, D_inv, tol=tol, verbose=verbose)
+        range_p = np.arange(M[p], N[p] + 1)
+        # try gaussian process of weights
+        gp, _, _ = gp_d_inv(θ_p, D_inv, tol=tol)
         d_inv_np = gp.predict(D_inv, range_p, mean_only=True)
-        #p_min = np.argmin(D)
-        #lam = θ_p[p_min]
-        #fact = np.cumprod([1.0] + list(range(1, N[p] + 1)))[Nlower[p]:N[p] + 1]
-        #d_inv_np = np.exp(-lam) * (lam**range_p) / fact
         if np.all(np.isnan(d_inv_np)) or np.all(d_inv_np <= 0.0):
-            # try D, instead of D^-1
-            #gp, _, _ = gp_d_inv(θ_p, D, tol=tol, verbose=verbose)
-            #d_np = gp.predict(D, np.arange(0, N[p] + 1), mean_only=True)
-            # try setting the shortest d to 1, all others 0.
-            #d_inp_np = np.zeros(N[p] + 1, dtype='f8')
-            #p_min = np.argmin(D)
-            #d_inv_np[np.argwhere(θ_p[p_min] == range_p)] = 1.0
-            # try Poisson dist centered at min.
-            p_min = np.argmin(D)
-            lam = θ_p[p_min]
-            fact = np.cumprod([1.0] + list(range(1, N[p] + 1)))[Nlower[p]:N[p] + 1]
-            d_inv_np = np.exp(-lam) * (lam**range_p) / fact
-        if np.any(d_inv_np < 0.0):
+            # try poisson, in event of failure
+            d_inv_np = weights_p_poisson(D, θ_p, range_p)
+        elif np.any(d_inv_np < 0.0):
             d_inv_np[d_inv_np < 0.0] = np.min(d_inv_np[d_inv_np > 0.0])
+        # ensure they are normalized
         d_inv_np_tot = d_inv_np.sum()
         w_p = d_inv_np / d_inv_np_tot
         W.append(w_p)
     return W
 
-def guess_scheds(Θs, W, Γ, gp, y, α, T=None):
-    """Guess a new deployment schedule, given a number of samples Γ, weights W, and 
-    Guassian process for the GWe.
+def guess_scheds_stoch(gp, y, Γ, f, T, **state):
+    """Guess a new deployment schedule, given a number of samples Γ, 
+    weights W, and Guassian process for the GWe.
     """
-    P = len(W)
+    W = weights(**state)
+    P = len(N)
     Θ_γs = np.empty((Γ, P), dtype=int)
-    Θ_γs[:, :α] = Θs[0][:α]
-    for p in range(α, P):
+    for p in range(P):
         w_p = W[p]
         Θ_γs[:, p] = np.random.choice(len(w_p), size=Γ, p=w_p)
     Δ = []
     for γ in range(Γ):
         Θ_γ = Θ_γs[γ]
-        g_star = predict_gwe(Θ_γ, gp, y, α, T=T)
-        d_star = d(g_star)
+        g_star = predict_gwe(Θ_γ, gp, y, T)
+        d_star = d(f, g_star)
         Δ.append(d_star)
     γ = np.argmin(Δ)
     Θ_γ = Θ_γs[γ]
-    print('hyperparameters', gp.kernel[:])
-    #print('Θ_γs', Θ_γs)
-    #print('Θ_γs[γ]', Θ_γs[γ])
-    #print('Predition', Δ[γ], Δ)
     return Θ_γ, Δ[γ]
 
-def guess_scheds_loop(Θs, gp, y, N, Nlower):
-    """Guess a new deployment schedule, given a number of samples Γ, weights W, and 
-    Guassian process for the GWe.
+def guess_scheds_inner(gp, y, Θs, f, M, N, **state):
+    """Guess a new deployment schedule using an inner product sweep.
     """
     P = len(N)
     Θ = np.array(Θs[0], dtype=int)
     for p in range(P):
         d_p = []
-        range_p = np.arange(Nlower[p], N[p] + 1, dtype=int)
+        range_p = np.arange(M[p], N[p] + 1, dtype=int)
         for n_p in range_p:
             Θ[p] = n_p
-            g_star = predict_gwe(Θ, gp, y, α=0, T=p+1)[:p+1]
-            d_star = d(g_star, f=DEFAULT_DEMAND[:p+1])
+            g_star = predict_gwe(Θ, gp, y, T=p+1)[:p+1]
+            d_star = d(f=f[:p+1], g_star)
             d_p.append(d_star)
         Θ[p] = range_p[np.argmin(d_p)]
-    print('hyperparameters', gp.kernel[:])
     return Θ, np.min(d_p)
 
-def estimate(est_time_s, winner_s, **state):
+def estimate(est_time_s, method_s, winner_s, hyperparameters_s, **state):
     """Runs an estimation step, returning a new deployment schedule."""
     t0 = time.time()
     gp, x, y = gp_gwe(**state)
+    method = method_s[-1]
     if method == 'stochastic':
-        # orig
-        W = weights(Θs, D, N, Nlower, α, tol=tol, verbose=verbose)
-        Θ, dmin = guess_scheds(Θs, W, Γ, gp, y, α, T=T)
+        Θ, dmin = guess_scheds_stoch(gp, y, **state)
         winner = 'stochastic'
     elif method == 'inner-prod':
-        # inner prod
-        Θ, dmin = guess_scheds_loop(Θs, gp, y, N, Nlower)
+        Θ, dmin = guess_scheds_inner(gp, y, **state)
         winner = 'inner-prod'
     elif method == 'all':
-        W = weights(Θs, D, N, Nlower, α, tol=tol, verbose=verbose)
-        Θ_stoch, dmin_stoch = guess_scheds(Θs, W, Γ, gp, y, α, T=T)
-        Θ_inner, dmin_inner = guess_scheds_loop(Θs, gp, y, N, Nlower)
-        if dmin_stoch < dmin_inner:
-            winner = 'stochastic'
-            Θ = Θ_stoch
-        else:
-            winner = 'inner-prod'
-            Θ = Θ_inner
+        Θ_stoch, dmin_stoch = guess_scheds_stoch(gp, y, **state)
+        Θ_inner, dmin_inner = guess_scheds_inner(gp, y, **state)
+        Θ, winner = (Θ_stoch, 'stochastic') if dmin_stoch < dmin_inner else \
+                    (Θ_inner, 'inner-prod')
     else:
         raise ValueError('method {} not known'.format(method))
+    winner_s.append(winner)
+    hyperparameters_s.append(gp.kernel[:])
     t1 = time.time()
     est_time_s.append(t1 - t0)
-    winner_s.append(winner)
     return Θ
 
 def str_current(state):
     """Prints the most recent iteration."""
     s = state['s']
+    i = s - 1
     x = 'Simulation {0}\n'.format(s)
     x += '-'*(len(x) - 1) + '\n'
-    x += 'Estimate method is {0!r}\n'.format(state['method_s'][s])
-    x += 'Estimate winner is {0!r}\n'.format(state['winner_s'][s])
+    x += 'hyperparameters: {0}\n'.format(state['hyperparameters_s'][i])
+    x += 'Estimate method is {0!r}\n'.format(state['method_s'][i])
+    x += 'Estimate winner is {0!r}\n'.format(state['winner_s'][i])
     return x
 
 def print_current(state):
@@ -335,6 +316,7 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
     simid_s = state['simid_s'] = []
     method_s = state['method_s'] = [method_0]*2
     winner_s = state['winner_s'] = [method_0]*2
+    hyperparameters_s = state['hyperparameters_s'] = [None]*2
     # run initial conditions
     add_sim(M, **start)  # lower bound
     add_sim(N, **start)  # upper bound
