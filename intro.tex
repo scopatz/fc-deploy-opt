@@ -46,6 +46,31 @@ picking the best option for each deployment parameter. The third option
 is to perform the previous two strategies and determine which one picked
 has the better guess.
 
+Nuclear fuel cycle demand curve optimization faces many challenges. 
+Foremost among is that even though the demand curve is specified on the 
+range of the reals, the optimization parameters are fundementtally 
+integral in nature. For a discrete time simulator, deployments can only 
+be issued in multiples of the size of the time step \citeme. Furthermore, 
+it is not possible to deploy only part of a facility; the facility is either 
+deployed or it is not. While it may be possible to deploy a facility and 
+only run it at partial capacity, most fuel cycle models do not support this
+for key faciities.  For example, it is unlikely that a utility would build 
+a new reactor only to run it at 50\% power. Thus, deployment is an integer 
+programming problem, as oppossed to its easier linear programming cousin
+\citeme.
+
+Furthermore, the option space is combinatorically large since the 
+question is, ``How many facilities should be deployed on each time step?'' 
+Even assuming a 50 year deployment schedule where no more than 3 facilities 
+are allowed to be deployed each time step, there are more than $10^30$ 
+combinations. If every simulation took a very generous 1 sec, simulating 
+each option would still take $\approx 3\times10^12$ times the current age
+of the universe.
+
+Moreover, because all of the parameters are integral, there is not a 
+meaningful formualtion of the Jacobian. Derivitive-free optimizers are 
+required. Methods such as particle swarm \citeme, pswarm \citeme,  
 
 Challenges with this formulation
 inetger capacities, discrete deployments, no jacobian, combinatorical
+
