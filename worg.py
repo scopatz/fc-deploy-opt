@@ -66,7 +66,7 @@ def make_sim(Θ, basename=OT_JSON, inpname=SIM_JSON, **state):
 # =========
 # Now let's build some tools to run simulations and extract a GWe time series.
 
-def run(inpname=SIM_JSON, dbname=OPT_H5):
+def run(inpname=SIM_JSON, dbname=OPT_H5, **state):
     """Runs a simulation and returns the sim id."""
     cmd = ['cyclus', '--warn-limit', '0', '-o', dbname, inpname]
     proc = subprocess.run(cmd, check=True, universal_newlines=True, 
@@ -118,8 +118,6 @@ def gwed(Θ, f, simid_s, **state):
     return gwe, d_s
 
 
-#N = np.asarray(np.ceil(4*(1.01)**np.arange(YEARS)), dtype=int)  # max annual deployments
-
 def add_sim(Θ, f, Θs, G, D, Θ_s, G_s, D_s, sim_time_s, **state):
     """Add a simulation to the known simulations by performing the simulation.
     """
@@ -139,7 +137,7 @@ def add_sim(Θ, f, Θs, G, D, Θ_s, G_s, D_s, sim_time_s, **state):
 # =======
 # Now let's add some tools to do the estimation phase of the optimization.
 
-def gp_gwe(Θs, G, T, tol, **state):
+def gp_gwe(Θs, G, T, tol, N, **state):
     """Create a Gaussian process regression model for GWe."""
     S = len(G)
     t = np.arange(T)
@@ -180,7 +178,7 @@ def gp_d_inv(θ_p, D_inv, tol=1e-6):
     kernel = float(y_mean) * george.kernels.ExpSquaredKernel(1.0, ndim=ndim)
     gp = george.GP(kernel, mean=y_mean, solver=george.HODLRSolver)
     gp.compute(x, yerr=yerr, sort=False)
-    gp.optimize(x, y, yerr=yerr, sort=False, verbose=verbose)
+    gp.optimize(x, y, yerr=yerr, sort=False, verbose=False)
     return gp, x, y
 
 def weights_p_poisson(D, θ_p, range_p):
@@ -192,7 +190,7 @@ def weights_p_poisson(D, θ_p, range_p):
     weights_p = np.exp(-lam) * (lam**range_p) / fact
     return weights_p
 
-def weights(Θs, D, M, N, Nlower, tol, **state):
+def weights(Θs, D, M, N, tol, **state):
     P = len(N)
     θ_ps = np.array(Θs)
     D = np.asarray(D)
@@ -220,7 +218,7 @@ def guess_scheds_stoch(gp, y, Γ, f, T, **state):
     weights W, and Guassian process for the GWe.
     """
     W = weights(**state)
-    P = len(N)
+    P = len(W)
     Θ_γs = np.empty((Γ, P), dtype=int)
     for p in range(P):
         w_p = W[p]
@@ -246,7 +244,7 @@ def guess_scheds_inner(gp, y, Θs, f, M, N, **state):
         for n_p in range_p:
             Θ[p] = n_p
             g_star = predict_gwe(Θ, gp, y, T=p+1)[:p+1]
-            d_star = d(f=f[:p+1], g_star)
+            d_star = d(f[:p+1], g_star)
             d_p.append(d_star)
         Θ[p] = range_p[np.argmin(d_p)]
     return Θ, np.min(d_p)
@@ -281,15 +279,15 @@ def str_current(state):
     i = s - 1
     x = 'Simulation {0}\n'.format(s)
     x += '-'*(len(x) - 1) + '\n'
-    x += 'SimId {0}'.format(state['simid_s'][i])
+    x += 'SimId {0}\n'.format(state['simid_s'][i])
     x += 'hyperparameters: {0}\n'.format(state['hyperparameters_s'][i])
     x += 'Estimate method is {0!r}\n'.format(state['method_s'][i])
     x += 'Estimate winner is {0!r}\n'.format(state['winner_s'][i])
     estt = state['est_time_s'][i]
-    x += 'Estimate time:   {0} min {1} sec\n'.format(estt//60, estt%60))
+    x += 'Estimate time:   {0} min {1} sec\n'.format(estt//60, estt%60)
     simt = state['sim_time_s'][i]
-    x += 'Simulation time: {0} min {1} sec\n'.format(simt//60, simt%60))
-    x += 'D: {0}\n'.format(D)
+    x += 'Simulation time: {0} min {1} sec\n'.format(simt//60, simt%60)
+    x += 'D: {0}\n'.format(state['D'])
     return x
 
 def print_current(state):
@@ -302,7 +300,8 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
              dbname=OPT_H5, verbose=False, seed=None):
     # state initialization
     state = {'f': f, 'N': N, 'verbose': verbose, 'z': z, 's': 0, 'seed': seed,
-             'basename': basename, 'inpname': inpname, 'dbname': dbname}
+             'basename': basename, 'inpname': inpname, 'dbname': dbname, 
+             'tol': tol}
     T = state['T'] = len(N) if T is None else T
     M = state['M'] = np.zeros(T, dtype=int)
     Γ = state['Γ'] = int(np.sum(N - M)) if Γ is None else Γ
@@ -318,15 +317,16 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
     Θ_s = state['Θ_s'] = []
     G_s = state['G_s'] = []
     D_s = state['D_s'] = []
-    est_time_s = state['est_time_s'] = []
+    est_time_s = state['est_time_s'] = [0.0, 0.0]
     sim_time_s = state['sim_time_s'] = []
     simid_s = state['simid_s'] = []
     method_s = state['method_s'] = [method_0]*2
     winner_s = state['winner_s'] = [method_0]*2
     hyperparameters_s = state['hyperparameters_s'] = [None]*2
     # run initial conditions
-    add_sim(M, **start)  # lower bound
-    add_sim(N, **start)  # upper bound
+    add_sim(M, **state)  # lower bound
+    add_sim(N, **state)  # upper bound
+    s = state['s'] = 2
     while MAX_D < D[-1] and s < MAX_S:
         # set estimation method
         method_s.append(method_0)
