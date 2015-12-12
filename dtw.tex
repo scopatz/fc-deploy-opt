@@ -1,0 +1,109 @@
+\subsection{Dynamic Time Warping}
+\label{dtw}
+
+The question of how to take the difference between the demand curve and 
+the production curve is an important one. The na\"ive option is to simply 
+take the $L_1$ norm of the difference between these two time sereies, as 
+seen in Equation \ref{delta-l1}.  However, since $g(t, \Theta)$ for 
+a simulation is expensive compute, any operation that can meaningfully 
+exacerbate the difference betweeen time series helps drive down the number 
+of optimization iterations.
+
+Dynamic time warping is just such a mechanism. It computes 
+a distance between any two time series which compounds the separartion 
+between the two. Additionally, the time series are not required to be of the 
+same length, though for optimization purposes there is no reason for them 
+not to be. DTW gives a measure of amount that one time series would need to 
+be warped to become the other time series. It is, therefore, a holistic  
+measure that operates over the complete time series. Dynamic time warping
+is more fully covered in \cite{muller}.  However, an 
+optimization-relevant introduction is given here.
+
+For the time series $f$ and $g$, there are three parts to dynamic time 
+warping. The first is the distance $d$, which will be minimized. The second 
+is a cost matrix $C$ that helps compute $d$ by indicating how far a point 
+on $f$ is from another point on $g$. Thirdly, the warp path $u$ is the 
+minimal cost curve through the $C$ matrix from the fist point in time to 
+the last. The DTW distance can thus be interpreted as the 
+total cost of travelling the warp path.
+
+The first step in computing a dynamic time warp distance is to 
+assemble the cost matrix. Say that the demand time series $f$ has 
+length $A$ indexed by $a$ and the production time series $g$ has 
+length $B$ indexed by $b$. For the optimization problem here, $A$ and $B$
+are in practice both equal to $T$.  However, it is useful to have $a$ and 
+$b$ index the two time series separately. Now denote an $A\times B$ matrix 
+$\Delta L$ as the $L_1$ norm of the difference between $f$ and $g$:
+\begin{equation}
+\label{delta-l1}
+\Delta L_{a,b} = \left|f(a) - g(b, \Theta)\right|_1
+\end{equation}
+The cost matrix $C$ may now be defined as the $A\times B$ sized matrix 
+which follows the recursion relations seen in Equation \ref{cost-matrix}.
+\begin{equation}
+\label{cost-matrix}
+\begin{split}
+C_{1,1} & = \Delta L_{1,1}\\
+C_{1,b+1} & = \Delta L_{1,b} + C_{1,b}\\
+C_{a+1,1} & = \Delta L_{a,1} + C_{a,1}\\
+C_{a+1,b+1} & = \Delta L_{a,b} + \min\left[C_{a,b}, C_{a+1,b}, C_{a,b+1}\right]
+\end{split}
+\end{equation}
+The boundary conditions above are the same as setting an infinite cost to 
+any $a \le 0$ or $b \le 0$. The cost matrix $C$ has the same units as the 
+demand curve. However, the scale of $C$ is (except for the fiducial case) 
+larger than the demand. This is because the cost matrix compounds the 
+minimum value of previous entries. 
+
+Knowing a cost matrix, the warp path can be computed by traversing the 
+matrix backwards from the $(A, B)$ corner to the $(1, 1)$ corner.
+If the length of the warp is $I$ indexed by $i$, the warp path itself 
+can be thought of as a sequence of coordinate points $u_i$. For a given 
+point $u_i$ in the warp path, the previous point $u_{i-1}$ found by 
+picking the minimum cost point among the locations one column over $(a,b-1)$, 
+one row over $(a-1,b)$, and one previous diagonal element to $(a-1,b-1)$. 
+Equation \ref{warp-path} expresses this mathematically.
+\begin{equation}
+\label{warp-path}
+u_{i-1} = \argmin\left[C_{a-1,b-1}, C_{a-1,b}, C_{a,b-1}\right]
+\end{equation}
+The maximum possible length of $u$ is thus $\max(I) = A + B$.
+The minimum possible length, though, is $\min(I) = \sqrt{A^2 + B^2}$. 
+
+The dynamic time warping distance distance $d$ can now be stated as the 
+cost of the final entry of the warp path normalized by the maximum possible
+length of the warp path.  
+\begin{equation}
+\label{d-calc-ab}
+d(f, g) = \frac{C_{A,B}}{A + B}
+\end{equation}
+However, because the demand curve and the production curve that is predicted
+or calculated are typically defined on the same time grid, $d$ can be further
+reduced to the following:
+\begin{equation}
+\label{d-calc}
+d(f, g) = \frac{C_{T,T}}{2T}
+\end{equation}
+Therefore, $d$ has the same units as the demand curve, production curve, 
+and cost matrix.
+
+As an example ....
+
+\begin{figure}[htb]
+\centering
+%\includegraphics[width=0.9\textwidth]{}
+\caption{Heat map of the cost matrix between ...
+The warp path is superimposed as the white curve on top of the cost matrix.}
+\label{}
+\end{figure}
+
+Figure \ref{} displays an example cost matrix 
+as a heat map for the DTW between ...
+Additionally, the warp path between these two is shown as the white curve
+on top of the heat map. Note that while $u$ is monotonic along both time axes, the
+path it takes minimizes the cost matrix at every step. Higher cost regions
+have the effect of pushing the warp path along one axis or another. The 
+distance between these two curves $d(f, \vec{0})$ is computed 
+to be XYZ GWe.
+
+In summary, dynamic time warping yields a meaningful mechanism for ...
