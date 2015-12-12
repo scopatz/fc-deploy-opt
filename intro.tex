@@ -69,8 +69,29 @@ of the universe.
 
 Moreover, because all of the parameters are integral, there is not a 
 meaningful formualtion of the Jacobian. Derivitive-free optimizers are 
-required. Methods such as particle swarm \citeme, pswarm \citeme,  
+required. Methods such as particle swarm \citeme, pswarm \citeme, and the 
+simplex method all could work.  However, typical implementations require
+more evaluations of the objective function (i.e. fuel cycle simulations)
+than are within an \emph{in situ} budget. 
 
-Challenges with this formulation
-inetger capacities, discrete deployments, no jacobian, combinatorical
+Even the usual case of 
+Gaussian process optimization (sometimes known as kriging) will still 
+require too many full realizations in order to form an accurate model.
+WORG, on the other hand, using the dynamic time warping distance as a 
+more separative measure of how two time series differ than just a simple
+L1 norm (or similar). This drives the estimation phase to make better choices
+sooner, and help converge to a resonable deployment schedule sooner. 
+The stochatsic strategy for WORG also utilizes Gaussian processes to 
+weight the choice of parameters.  This guides the guesses for the deployment
+schedules such that fewer guesses are needed, while not fully restricting 
+any option.  So while WORG relies on Gaussian processes, it does so in a way
+that is distinct from normal kriging. WORG
+takes advanage of the \emph{a priori} knowledge that a deployment 
+schedule is requested to meet a demand curve. 
 
+The structure of the WORG method is detailed in \S\ref{method}. 
+The different strategies for selecting a best-guess estimate of the 
+deploytment schedule are then discussed in \S\ref{selecting}. Performance
+and results of the method for a sample once-through fuel cycle scenario 
+are presented in \S\ref{results}. Finally, \S\ref{conclusion} summarizes
+WORG and list oppurtunities for future work.
