@@ -87,23 +87,35 @@ d(f, g) = \frac{C_{T,T}}{2T}
 Therefore, $d$ has the same units as the demand curve, production curve, 
 and cost matrix.
 
-As an example ....
+As an example, take 1\% growth that starts with 90 GWe in the year 
+2016 as the demand curve. Then consider a production curve that 
+under produces the demand by 5\% for 25 years before switching to over 
+producing this curve by 5\% for the next 25 years.  
+Figure \ref{cost-demand-to-production} shows the dynamic time warping 
+between these two.
 
 \begin{figure}[htb]
 \centering
-%\includegraphics[width=0.9\textwidth]{}
-\caption{Heat map of the cost matrix between ...
-The warp path is superimposed as the white curve on top of the cost matrix.}
-\label{}
+\includegraphics[width=0.9\textwidth]{cost-demand-to-production.eps}
+\caption{Heat map of the cost matrix between a 1\% growth demand curve and 
+a production curve the under produces by 5\% for the first 25 years and then
+over produces for the second 25 years.  
+The warp path $u$ is superimposed as the white curve on top of the 
+cost matrix.}
+\label{cost-demand-to-production}
 \end{figure}
 
-Figure \ref{} displays an example cost matrix 
-as a heat map for the DTW between ...
-Additionally, the warp path between these two is shown as the white curve
-on top of the heat map. Note that while $u$ is monotonic along both time axes, the
-path it takes minimizes the cost matrix at every step. Higher cost regions
-have the effect of pushing the warp path along one axis or another. The 
-distance between these two curves $d(f, \vec{0})$ is computed 
-to be XYZ GWe.
+Additionally, the warp path between the example demand and production 
+curves is presented as the white curve on top of the heat map in 
+Figure \ref{cost-demand-to-production}. 
+Recognize that $u$ is monotonic along both time axes. Furthermore, the precise
+path of $u$ minimizes the cost matrix at every step. Regions of increased 
+cost in the cost matrix have the repel the warp path. Incidentally, the 
+distance $d$ between the demand and production curves happens 
+to be 0.756 GWe.
 
-In summary, dynamic time warping yields a meaningful mechanism for ...
+Dynamic time warping distance can therefore be used as an objective function 
+to minimize for any demand and production curves. However, using full 
+simulations to find $g(t, \Theta)$ remains expensive, even though DTW itself 
+is computationally cheap. Therefore, a mechanism to reduce the overhead 
+from production curve evaluation is needed.
