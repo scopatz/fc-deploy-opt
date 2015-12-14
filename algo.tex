@@ -1,0 +1,49 @@
+\subsection{WORG Algorithm}
+\label{algo}
+
+The WORG algorithm has two fundemantal phases on each iteration:
+estimation and simulation.  Aside from these there is an initialization 
+phase that is needed to kick off the optimization.
+
+\clearpage
+\begin{lstlisting}[
+    caption={WORG Algorithm in Python psuedo-code.},
+    label=worg-psuedo,mathescape]
+Thetas, G, D = [], [], []  # initialize history
+
+# run lower bound simulation
+g, d = run_sim(M)
+Thetas.append(M)
+G.append(g)
+D.append(d)
+
+# run upper bound simulation    
+g, d = run_sim(N)
+Thetas.append(N)
+G.append(g)
+D.append(d)
+
+s = 2
+while MAX_D < D[-1] and s < S:
+    # set estimation method
+    method = initial_method
+    if method == 'all' and (s%4 < 2):
+        method = 'stochastic'
+
+    # estimate deployment schedule and run simulation
+    Theta = estimate(method)
+    g, d = run_sim(Theta)
+    Thetas.append(Theta)
+    G.append(g)
+    D.append(d)
+
+    # take only the most important and most recent schedules
+    idx = argsort(D)[:z]
+    if D[-1] == max(D):
+        idx.append(-1)
+    Thetas = [Thetas[i] for i in idx]
+    G = [G[i] for i in idx]
+    D = [D[i] for i in idx]
+    s = (s + 1)
+\end{lstlisting}
+\clearpage
