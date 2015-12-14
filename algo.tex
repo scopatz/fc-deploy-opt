@@ -31,7 +31,7 @@ while MAX_D < D[-1] and s < S:
         method = 'stochastic'
 
     # estimate deployment schedule and run simulation
-    Theta = estimate(method)
+    Theta = estimate(f, Thetas, G, method)
     g, d = run_sim(Theta)
     Thetas.append(Theta)
     G.append(g)
