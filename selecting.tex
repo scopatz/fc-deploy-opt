@@ -121,3 +121,90 @@ proccess each $g_*(\mathbf{t}, \Theta_\gamma)$ should be evaluated and the
 dynamic time warping distance computed. The deployment schedule with 
 the minimum distance is then selected.
 
+
+
+\subsection{Inner Product Estimation}
+\label{inner-prod}
+
+As an alternative to the stochastic method demonstrated in \S\ref{stochastic}, 
+a best-guess for $\Theta$ can also be built up iterively over all times.
+The method here uses the same production curve Gaussian process $g_*$ to 
+predict production levels and measure the distance to the demand curve.
+However, this method tries to attempts to minimize the distance at time
+$t$ and then uses this inform the minimization of $t+1$. Starting at $t=1$
+and moving through the whole time grid to $t=T$, a complete deployment 
+schedule is generated.
+
+The following description is simplified for the case where $P==T$. However, 
+this method is easily extended to the case where $P > T$, such as for 
+multiple reactor times.  When $P > T$, group $\theta_p$ that occur on the 
+same time step together and take the outter product of their options before
+walking through time.
+
+For this method, define the time sub-grid $\mathbf{t}_p$ as the sequence of
+all times less than or equal to the time when parameter $p$ occurs, $t(p)$.
+\begin{equation}
+\label{t-p}
+\mathbf{t}_p = \left\{t | t \le t(p)\right\}
+\end{equation}
+Now define the deployment schedule $\Theta^t$ up to time $t$ through the
+following recursion relations:
+\begin{equation}
+\label{Theta-t}
+\begin{split}
+\theta_1 & = n \, | \, \mathrm{min}\left[d(f, g_*(1, n))\right]
+                       \forall n\in[M_1, N_1] \\
+\Theta^1 & = \left\{\theta_1\right\}\\
+\theta_p & = n \, | \, \mathrm{min}\left[d(f, g_*(\mathbf{t}_p, 
+                                                  \Theta^{t-1}, n))\right]
+                       \forall n\in[M_p, N_p] \\
+\Theta^t & = \left\{\Theta_1^{t-1}, \ldots, \Theta_{p-1}^{t-1}, \theta_p\right\}
+\end{split}
+\end{equation}
+Equation \ref{Theta-t} has the effect of choosing the the number of 
+facilities to deploy at each time step that minimizes the distance function.
+The current time step uses the previous deployment schedule and only searches
+the option space of the its own deployment parameters. Once $\Theta^T$ is 
+reached, it is selected as the deployment schedule $\Theta$. The inner 
+product method here requires the same number of evaluations of $g_*$ as 
+were selected for the default value of $\Gamma$ in Equation 
+\ref{Gamma-default}.
+
+
+
+\subsection{All of the Above Estimation}
+\label{all}
+
+This method is simply to run both the stochastic method and the inner product
+method and determine which has the lower $d(f, g_*)$ for the deployment 
+schedules they produce.  This method contains both the advantages and 
+disadvantages of the other methods.  Additionally, it has the disadvantage 
+of being more computationally expensive than the methods individually.
+
+The advantage form the stochastic method that the entire space is potentially 
+searched is also confered here.  This is important since there may be other
+optima far away from the current $\vec{\Theta}$ that produce lower distances.
+Searching globally prevents the stochastic method from becoming stuck locally.
+However, the stochastic method may take many iterations to 
+make minor improvements on a $\Theta$ which is already close to a best-guess.
+It is, after all, searching globally for something better.
+
+On the other hand, the inner product method is designed to search around 
+the prart of the Gaussian process model already produces good results. It
+is meant to make minor adjustments as it goes.  Unfortunately, this means
+the inner product method can more easily get stuck in a cycle  wehere it 
+produced the same series of deployment schedules over and over again. 
+It has no mechanism on its own to break out of such cycles.
+
+With the all-of-the-above option, the job of balancing the relative merits
+of the stochastic and inner product methods is left to the optimization 
+loop itself.  This can be seen in \S\ref{algo}.  If the \allflag flag 
+is set as th method, it is only executed as \allflag two of every four 
+iterations.  Other strategies for determining how and when each of the 
+three methods are used could be designed. However, any more complex strategy 
+should be able to show that it meaningfully reduces the number of loop 
+iterations required.
+
+At this point, the entire WORG method has been described. From here, a 
+demonstrtation of how it performs for a representative fuel cycle is 
+presented. 
