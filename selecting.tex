@@ -1,2 +1,117 @@
 \section{Selecting Deployment Schedule Estimates}
 \label{selecting}
+
+There are three methods for choosing a new deployment schedule $\Theta$ 
+to attempt to run in a simulator. The first is stochastic with weighted
+probablities for the $\theta_p$.  The second does a determintsic sweep 
+iteratively over all options, minimizing the dynamic time warping distance
+at each point in time for each deployment parameter.  The last combines
+these two and choose the one with the minimum distance to the demand curve.
+
+All of these rely on a Gaussian process model of the production
+curve. This is because constructing and evaluating GP model $g_*$ is 
+significantly faster than performing even a low-fidelity simulation. 
+As a demonstrative example, say each evaluation of $d(f, g_*)$ takes a tenth
+of a second (which is excessively long) and $d(f, g_s)$ for a low fidelity
+simulation takes ten seconds (which is reasonable), the model evaluation 
+is still one hundred times faster.  Furthermore, the cost of constucting 
+the GP model can is amotorized over the number of guesses that are made.
+
+However, the choice of which $\theta_p$ to pick is extremely important
+as they drive the optimization. In a vanillia stochastic algorithm, 
+each $\theta_p$ would be selected as a univariate integer on the 
+range $[M_p, N_p]$.  However, this ignores the distance information $D$ 
+that is known about the training set that is used to create the GP in the
+first place. More intelligent guesses for $\theta_p$ focus the model 
+evaluations to more promising regions of the option space.  This in turn 
+helps reduce the overall number of expensive simulations needed to find 
+a good-enough deployment schedule.
+
+The three WORG $\Theta$ selection methods are described in order in the 
+following subsections.
+
+\subsection{Stochastic Estimation}
+\label{stochastic}
+
+The stochastic method works by randomly choosing $\Gamma$ deployment 
+schedules and evaluating $g_*(t, \Theta_\gamma)$ for each guess $\gamma$.
+The $\Theta_\gamma$ which has the minimum distance $d_\gamma$ is 
+taken as the best-guess deployment schedule.  The number of guesses may 
+be as large or as small as desired.  However, a reasonable number to use
+that spans the option space is the $L_1$ norm of the difference of the 
+bounds inclusive. Namely, 
+\begin{equation}
+\label{Gamma-default}
+\Gamma = \sum_p^P (N_p - M_p + 1)
+\end{equation}
+That is, each $\theta_p$ has $N_p - M_p + 1$ options, and so a reasonable
+choice for $\Gamma$ is the sum of the number of independent options.
+
+Still, each option for $\theta_p$ should not be equally likely. 
+For example, if the demand curve is relatively low, the number of deployed 
+facilities is unlikely to be relatively high. For this reason, the choice 
+of $\theta_p$ should be weighted.  Furthermore, note that each $\theta_p$
+is potentially weighted differently as they are all independent parameters.
+Denote $n \in [M_p, N_p]$ such that the n-th weight for the p-th parameter 
+is called $w_{n,p}$. 
+
+To choose weights, first observe that the distances $D$ can be said to be
+inversely proportional to how likely each deployment schedule in 
+$\vec{\Theta}$ should be. A one-dimensional Gaussian process can thus be
+constructed to model inverse distances given the values of the deployment 
+parameter for each schedule, namely $\vec{\theta_p}$.  Call this model 
+$d_*^{-1}$ as seen in Equation \ref{d-inv-model}.
+\begin{equation}
+\label{d-inv-model}
+d_*^{-1}(\theta_p) = \GP\left(\mu(\vec{\theta_p}), 
+                              k(\vec{\theta_p}, \vec{\theta_p}^\prime)\right)
+                   \equiv \GP\left[D^{-1}\right]
+\end{equation}
+The construction, regression of hyperparameters, and evaluation of this 
+model follows analogously to the production curve modeling presented in 
+\S\ref{gp}.
+
+The weights for $\theta_p$ are thus the normalized evaluation of the 
+inverse distance model for all $m$ and $n$ defined on the p-th range.
+Symbolically, 
+\begin{equation}
+\label{d-inv-w}
+w_{n,p} = \frac{d_*^{-1}(n)}{\sum_{m=M_p}^{N_p} d_*^{-1}(m)}
+\end{equation}
+Equation \ref{d-inv-w} works very well as long as a valid model can 
+be established.  However, this is sometimes not the case when the $\theta_p$
+are degenerate, the distances are too close together, the distances are 
+too close to zero, or other stability issues arise.
+
+In cases where a valid model may not be formed for $d_*^{-1}(\theta_p)$, 
+a Poisson distribution may be used instead.  Take the mean of the Poisson
+distribution $\lambda$ to be the value of $\theta_p$ where the distance
+is minimized.
+\begin{equation}
+\label{lambda}
+\lambda_p = \theta_p | \mathrm{argmin}(D) 
+\end{equation}
+Hence, the Poisson probability distribution is, 
+\begin{equation}
+\label{poisson}
+\mathrm{Poisson(n)} = \frac{\lambda^n}{n!} e^{-\lambda}
+\end{equation}
+Now, because $n$ is bounded, it is important to renormalize Equation 
+\ref{poisson} when constructing stochastic weights.
+\begin{equation}
+\label{poisson-w}
+\begin{split}
+w_{n,p} & = \frac{\frac{\lambda^n}{n!} e^{-\lambda}}
+                 {\sum_{m=M_p}^{N_p} \frac{\lambda^m}{m!} e^{-\lambda}}\\
+        & = \frac{\lambda^n}
+                 {n!\sum_{m=M_p}^{N_p} \frac{\lambda^m}{m!}}\\
+\end{split}
+\end{equation}
+Poisson-based weights could be used exclusively, foregoing the inverse 
+distance Guassian process models completely. However, the Poisson-only 
+method takes into account less information about the demand-to-production
+curve distances.  It was therefore observed to converge more slowly 
+on an optimum than using Poisson weights as a backup.  Since the total 
+number of simulations is aiming to be minimized for \emph{in situ} use, 
+the WORG method uses Poisson weights as a fallback only.
+

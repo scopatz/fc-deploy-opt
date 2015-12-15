@@ -305,7 +305,7 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
              'tol': tol}
     T = state['T'] = len(N) if T is None else T
     M = state['M'] = np.zeros(T, dtype=int)
-    Γ = state['Γ'] = int(np.sum(N - M)) if Γ is None else Γ
+    Γ = state['Γ'] = int(np.sum(N - M + 1)) if Γ is None else Γ
     if os.path.isfile(dbname):
         os.remove(dbname)
     if seed is not None:

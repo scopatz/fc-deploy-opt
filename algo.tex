@@ -68,7 +68,7 @@ while MAX_D < D[-1] and s <= S:
         method = 'stochastic'
 
     # estimate deployment schedule and run simulation
-    Theta = estimate(Thetas, G, f, method)
+    Theta = estimate(Thetas, G, D, f, method)
     g, d = run_sim(Theta, f)
     Thetas.append(Theta)
     G.append(g)
@@ -136,4 +136,4 @@ next iteration begins.
 The WORG algorithm presented here shows the overall structure of the 
 optimization.  However, equally important and not covered here is how the
 estimation phase chooses $\Theta$.  The methods that WORG may use are 
-presented in the following sections, which rounds out the methodology. 
+presented in the following sections, which completes the methodology. 
