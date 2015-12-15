@@ -115,3 +115,9 @@ on an optimum than using Poisson weights as a backup.  Since the total
 number of simulations is aiming to be minimized for \emph{in situ} use, 
 the WORG method uses Poisson weights as a fallback only.
 
+After weights are computed for all $P$ deployment parameters, a set of 
+$\Gamma$ deployment schedules may be stochastically chosen. The Gaussian
+proccess each $g_*(\mathbf{t}, \Theta_\gamma)$ should be evaluated and the
+dynamic time warping distance computed. The deployment schedule with 
+the minimum distance is then selected.
+
