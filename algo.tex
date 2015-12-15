@@ -44,18 +44,18 @@ variable $s$ is set to two.
 
 \clearpage
 \begin{lstlisting}[
-    caption={WORG Algorithm in Python psuedo-code.},
+    caption={WORG Algorithm in Python Pseudo-code},
     label=worg-pseudo,mathescape]
 Thetas, G, D = [], [], []  # initialize history
 
 # run lower bound simulation
-g, d = run_sim(M)
+g, d = run_sim(M, f)
 Thetas.append(M)
 G.append(g)
 D.append(d)
 
 # run upper bound simulation    
-g, d = run_sim(N)
+g, d = run_sim(N, f)
 Thetas.append(N)
 G.append(g)
 D.append(d)
@@ -68,14 +68,14 @@ while MAX_D < D[-1] and s <= S:
         method = 'stochastic'
 
     # estimate deployment schedule and run simulation
-    Theta = estimate(f, Thetas, G, method)
-    g, d = run_sim(Theta)
+    Theta = estimate(Thetas, G, f, method)
+    g, d = run_sim(Theta, f)
     Thetas.append(Theta)
     G.append(g)
     D.append(d)
 
     # take only the most important and most recent schedules
-    idx = argsort(D)[:Z]
+    idx = argsort(D)[:2]
     if D[-1] == max(D):
         idx.append(-1)
     Thetas = [Thetas[i] for i in idx]
@@ -106,5 +106,34 @@ simliar loops formed with floating point approximations to Newton's method.
 To prevent this when using \allflag, WORG forces the stochastic method
 for two consecutive iterations out of every four.  
  
+A best-guess estimate for a deployment schedule $\Theta$ is finally 
+made.  This takes the previous deployment schedules $\vec{\Theta}$ and
+production curves $G$ and forms a Gaussian process model. Potential 
+values for $\Theta$ are explored according to the method provide.  The 
+$\Theta$ that produces the minimum dynamic time warping distance between
+the demand curve and the model $d(f, g_*)$ is then returned.
 
+The $\Theta$ estimate is then supplied to the the simulator itself and 
+a simulation is executed.  The details of this prcedure are, of course,
+simulator specific.  However, the simulation combined with any post-processing 
+needed should return an aggregate production curve $g_s(t, \Theta)$.  
+This is then compared to demand curve via $d(f, g_s)$. After the simulation, 
+$\Theta$, $g_s(t, \Theta)$, and $d(f, g_s)$ are appended to the 
+$\vec{\Theta}$, $G$, and $D$ sequences.  Importantly, note that the 
+production curve and DTW distance from the simulator are appended, 
+not the production curve and distance from the estimate model.
 
+Concluding the optimization loop, $\vec{\Theta}$, $G$, $D$, and $s$ are
+updated.  This begins by finding and keeping the two elements with the 
+lowest distances between the demand and production curves.  However, 
+if the most recent simualtion yeilded the largest distance, this is also
+kept for the next iteration. Keeping the largest distance serves to deter
+exploration in the direction on the next iteration.  Thus a sequence of 
+two or three indices is chosen. These indices are applied to redefine
+$\vec{\Theta}$, $G$, and $D$. Lastly, $s$ is incremented by one and the
+next iteration begins.
+
+The WORG algorithm presented here shows the overall structure of the 
+optimization.  However, equally important and not covered here is how the
+estimation phase chooses $\Theta$.  The methods that WORG may use are 
+presented in the following sections, which rounds out the methodology. 
