@@ -2,13 +2,50 @@
 \label{algo}
 
 The WORG algorithm has two fundemantal phases on each iteration:
-estimation and simulation.  Aside from these there is an initialization 
-phase that is needed to kick off the optimization.
+estimation and simulation.  These are preceded by an initialization 
+before the optimization loop. Additionally, each iteration decides 
+which information from the previous simulations is worth keeping for the
+next estimation. Furthermore, the method of estimating deployment 
+schedules may be altered each iteration.  Listing \ref{worg-pseudo}
+shows the WORG algorithm as Python pseudo-code. A detailed walk-through 
+explination of this code will now be presented.
+
+Begin by initializing three empty sequences $\vec{\Theta}$, $G$, and $D$.
+Each element of these series represents deployment schedule $\Theta$, 
+a production curve $g(t, \Theta)$, and a dynamic time warping history 
+between the demand and production curves $d(f, g)$ as seen previously.
+Importantly, $\vec{\Theta}$, $G$, and $D$ only contain values for
+the relevant optimization window. For example, root finding algorithms
+such as Newton's method and the bisection method have a lenght-2 window
+since they use the $(s-1)^\mathrm{th}$ point and the $s^\mathrm{th}$ point
+to compute the $(s+1)^\mathrm{th}$ point. Since a Gaussian process model is 
+formed, any or all of the $s$ iteration information may be used. However, 
+Allowing the time window to be either two or three depending on the 
+circumstances balances the need to keep the points with the lowest $d$ 
+values while pushing the model far from known regions with higher 
+dinatnces. WORG effectively tries to have $D$ contain one high-value $d$
+and one or two low valued $d$ at all iterations. 
+
+To this end, $\vec{\Theta}$, $G$, and $D$ are initialized with two 
+bounding cases. The first is to set the deployment schedule equal to the
+lower bound of the number of deployments $M$.  Recall that this is 
+usually $\mathbf{0}$ everywhere, unless a minimum number of facilities 
+must be deployed at a specific point in time. Running a simulation with 
+$M$ will then yeild a production curve $g(f, g)$ and the DTW distance to
+this curve.  Note that just because the no facilites are deployed, the 
+production curve need not be zero due to the initial conditions of the 
+simulation, where existing facilities will continue to produce. 
+
+Similarly, another simulation may be executed for the maximum possible
+deployment schedule $N$. This will also provide information on the 
+production over time and the distance to the demand curve. $M$ and $N$
+form the first two simulations, and therefore the loop 
+variable $s$ is set to two.
 
 \clearpage
 \begin{lstlisting}[
     caption={WORG Algorithm in Python psuedo-code.},
-    label=worg-psuedo,mathescape]
+    label=worg-pseudo,mathescape]
 Thetas, G, D = [], [], []  # initialize history
 
 # run lower bound simulation
@@ -24,7 +61,7 @@ G.append(g)
 D.append(d)
 
 s = 2
-while MAX_D < D[-1] and s < S:
+while MAX_D < D[-1] and s <= S:
     # set estimation method
     method = initial_method
     if method == 'all' and (s%4 < 2):
@@ -38,7 +75,7 @@ while MAX_D < D[-1] and s < S:
     D.append(d)
 
     # take only the most important and most recent schedules
-    idx = argsort(D)[:z]
+    idx = argsort(D)[:Z]
     if D[-1] == max(D):
         idx.append(-1)
     Thetas = [Thetas[i] for i in idx]
@@ -47,3 +84,11 @@ while MAX_D < D[-1] and s < S:
     s = (s + 1)
 \end{lstlisting}
 \clearpage
+
+The omptimization loop may now be entered.  This loop has two conditions.
+The first is that the next iteration occurs only if the last distnace
+is greater than a threshold value $\mathrm{MAX\_D}$. The second is that 
+the loop variable $s$ must be less than or equal the maximum number
+of iteration $S$.
+
+
