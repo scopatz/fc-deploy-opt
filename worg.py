@@ -328,7 +328,7 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
     add_sim(M, **state)  # lower bound
     add_sim(N, **state)  # upper bound
     s = state['s'] = 2
-    while MAX_D < D[-1] and s < MAX_S:
+    while MAX_D < D[-1] and s <= MAX_S:
         # set estimation method
         method_s.append(method_0)
         if method_0 == 'all' and (s%4 < 2):
@@ -346,4 +346,4 @@ def optimize(f, N, M=None, z=2, MAX_D=0.1, MAX_S=12, T=None, Γ=None, tol=1e-6,
         s = state['s'] = (s + 1)
         if verbose:
             print_current(state)
-
+    return state
