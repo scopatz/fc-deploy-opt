@@ -1,2 +1,36 @@
 \section{Performance \& Results}
 \label{results}
+
+To demonstrate the three variant WORG methods, an unconstrainted once 
+through fuel cycle is modeled with the Cyclus simulator 
+\cite{DBLP:journals/corr/HuffGCFMOSSW15}. In such a scenario, uranium
+mining, enrichment, fuel fabrication, and storage all have effectively 
+infinite capacities. The only meaningful constraints on the system are
+how many light-water reactors (LWR) are built.
+
+The base simulation begins with 100 reactors in 2016 that each produce
+1 GWe, have an 18 month batch legnth with a one month reload time.
+The initial fleet of LWRs retires evenly over the 40 years from 2016 to 
+2056. All new reactors have a 60 year life time.  The simulation itself 
+follows 50 years from 2016 to 2066. \emph{In situ} time horizons are 
+expected to be much lower, on the order of 5, 10, or 20 years.
+
+The study here compares how WORG performs from 0\% (steady state), 1\%, 
+and 2\% growth curves from an initial 90 GWe target. These are examined
+using the three estimation variants.  Calling $r$ the growth rate as a 
+fraction, the demand curve is thus,
+\begin{equation}
+\label{f-rate}
+f(t) = 90 (1 + r)^t
+\end{equation}
+Moreover, the upper bound for the number of deployable facilities at 
+each time is set to be the ceiling of four times the total growth. 
+That is, assuming four facilities at most could be deployed in the first
+year, increase the upper bound along with the growth rate.  This yields
+the following expression for $N$.
+\begin{equation}
+\label{n-rate}
+N(t) = \left\lceil 4 (1 + r)^t\right\rceil
+\end{equation}
+The lower bound for the number of deployed reactor is simply set to the 
+zero vector, $M = \mathbf{0}$.
