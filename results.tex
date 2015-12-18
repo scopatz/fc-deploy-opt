@@ -218,3 +218,48 @@ will select either $S$ or $I$.
 Figures \ref{converge-0per} - \ref{converge-2per} demonstrate a convergence 
 study for the three 
 different growth rates as a function of the number of simulations $s$.
+These three figures demonstrate important properties of the WORG method.
+The first is that the \allflag estimation method here consistently has
+the lowest minimum dynamic time warping distance, and thus the best guess 
+for the deployment schedule $\Theta$.  Furthermore, the \allflag curves
+in these figures show that the best estimate consistenly switches
+between the inner product search and stochastic search. These imply 
+that together the \stochastic and \innerprod methods converge more quickly 
+that the sum of their parts.  This is particularly visible in the 0\% growth
+rate case seen in Figure \ref{converge-0per}.
+
+Additionally, These convergence plots show that the majority of the 
+$\Theta$ selection gains are made by $s=10$.  Simulations past ten may 
+show differential imporvement for the \allflag method.  However, they 
+do not tend to generate any measurable improvement for \stochastic or
+\innerprod selection mechanisms. Furthermore, most of the gains for the 
+\allflag method are realized by simulation five or six. Thus a reduction
+by a factor of two to four in the number of simulations is available.
+This equates directly to a like reduction in computational cost.
+
+Figures \ref{converge-0per} - \ref{converge-2per} also show the tendancy of
+the \innerprod method to become deterministically stuck when used on its own.
+In all three cases, the \innerprod method resolves to a constant by 
+simulation five or ten.  In the 1\%, this solution happens to be quite close
+to the solution predicted by the \allflag method.  In the 0\% case, this
+constant meaningfully distinct, but is still more akin to the \stochastic 
+solution than the \allflag one.  In the 2\% case, the converged \innerprod
+result has little to do with the \allflag prediction.  Thus it is not
+recomended to use \innerprod on its own. While it may succeed, it is too 
+risky because it may cease improving at the wrong place.
+
+The \stochastic estimation method is also prone to simliar cyclic behavior.
+The differnce between the stochastic and inner product searches, though,
+is the second best guess is also in a constant prediction cycle for 
+the \innerprod method.  With the stochastic search, the second best 
+guess has more freedom to roam the option space, creating potentially 
+different Gaussian process models with each iteration $s$.  Eventually, given 
+enough guesses and enough iterations, teh stochastic model will break 
+out of a local optimum to find perhaps a better global optimum elsewhere.
+For the \emph{in situ} use case, though, eventual solution is not fast
+enough.  The inner product search spans regions that the stochastic weighting
+labeled as unlikely.  This assist is what enables the \allflag method
+to be converge faster than the stochastic method on its own.  That said, 
+if the \emph{in situ} use case is not relevant, the stochastic method on 
+its own could be used without any algorithmic qualms.
+
