@@ -49,12 +49,54 @@ times. This method does help make radical adjustments to accomodate
 problems with the initial conditions, such as when 50 GWe are demanded 
 but 100 GWe are already being produced.
 
-To begin the comparison, Figures \ref{demand-product-stochastic} - 
+First, Figures \ref{deploy-0} - \ref{deploy-2}
+show the optimized deployment schedule for the three estimation methods.
+The figures represent the 0\%, 1\% and 2\% growth curves resepctively.
+Figures \ref{deploy-0} \& \ref{deploy-1} show that the \stochastic method
+has the highest number of facilities deployed at any single time. In the 
+2\% case, the \allflag method predicts the largest number of facilites 
+deployed.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{deploy-0.eps}
+\caption{Optimized deployment schedule $\Theta$ for a 0\% growth (steady 
+state) demand curve. The number of deployed facilities shown are 
+for the \stochastic (black), \innerprod (green), and \allflag (purple)
+estimation methods.}
+\label{deploy-0}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{deploy-1.eps}
+\caption{Optimized deployment schedule $\Theta$ for a 1\% growth 
+demand curve. The number of deployed facilities shown are 
+for the \stochastic (black), \innerprod (green), and \allflag (purple)
+estimation methods.}
+\label{deploy-1}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{deploy-2.eps}
+\caption{Optimized deployment schedule $\Theta$ for a 2\% growth 
+demand curve. The number of deployed facilities shown are 
+for the \stochastic (black), \innerprod (green), and \allflag (purple)
+estimation methods.}
+\label{deploy-2}
+\end{figure}
+
+\clearpage
+
+More important than the deployment schedules themselves, however, are the
+production curves that they illicit.
+Figures \ref{demand-product-stochastic} - 
 \ref{demand-product-all} display the
 power production for the best-guess deployment schedule $G_1$ (solid lines),
 production for the second best schedule $G_2$ (dotted lines), 
 and demand curves (dashed) for 0\%, 1\%, and 2\% growth. 
-Each figure shows a different estimation mechanism.
+Th figures show each estimation mechanism separately.
 
 \begin{figure}[htb]
 \centering
@@ -123,4 +165,18 @@ facilities (100 LWRs with 18 month cycles) does not precisely match an
 initial 90 GWe target. The problem was specified this way in order to show 
 that resonable deployments are still selected even in slightly 
 unreasonable sitations.
+
+Still, the main purpose of the WORG algorithm is to converge as quickly as 
+possible to a reasonable best-guess. The limitng factor is the number of 
+predictive simulations which must be run. WORG will always execute 
+at least three full simulations: the lower bound, the upper bound, and one
+iteration of the optimization loop. A reasonable limit on the total number 
+of simulations $S$ is 20.  For an \emph{in situ} calculator, it is unlikely
+to want to compute more than this number of sub-simulations to predict 
+the deployment schedule for the next 1, 5, 10, or 20 years. However, it 
+may be possible to limit $S$ to significantly below 20 as well.
+
+Figures \ref{} - \ref{} demonstrate a convergence study for the three 
+different growth rates as a function of the number of simulations $s$.
+
 
