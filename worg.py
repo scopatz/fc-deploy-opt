@@ -53,8 +53,9 @@ def deploy_inst_schedule(Θ):
         m = (m + 1) % 12
     return sched
 
-def make_sim(Θ, basename=OT_JSON, inpname=SIM_JSON, **state):
+def make_sim(Θ, T, basename=OT_JSON, inpname=SIM_JSON, **state):
     sim = base_sim(basename)
+    sim['simulation']['control']['duration'] = T * 12  # monthly time steps
     inst = sim['simulation']['region']['institution']
     inst['config']['DeployInst'] = deploy_inst_schedule(Θ)
     with open(inpname, 'w') as f:
@@ -185,8 +186,8 @@ def weights_p_poisson(D, θ_p, range_p):
     M_p = range_p[0]
     N_p = range_p[-1]
     p_min = np.argmin(D)
-    lam = θ_p[p_min]
-    fact = np.cumprod([1.0] + list(range(1, N_p + 1)))[M_p:N_p + 1]
+    lam = float(θ_p[p_min])
+    fact = np.cumprod([1.0] + list(range(1, N_p + 1)))[M_p:N_p+1]
     weights_p = np.exp(-lam) * (lam**range_p) / fact
     return weights_p
 
@@ -202,7 +203,7 @@ def weights(Θs, D, M, N, tol, **state):
         # try gaussian process of weights
         gp, _, _ = gp_d_inv(θ_p, D_inv, tol=tol)
         d_inv_np = gp.predict(D_inv, range_p, mean_only=True)
-        if np.all(np.isnan(d_inv_np)) or np.all(d_inv_np <= 0.0):
+        if np.any(np.isnan(d_inv_np)) or np.all(d_inv_np <= 0.0):
             # try poisson, in event of failure
             d_inv_np = weights_p_poisson(D, θ_p, range_p)
         elif np.any(d_inv_np < 0.0):
