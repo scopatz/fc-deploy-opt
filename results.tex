@@ -176,7 +176,45 @@ to want to compute more than this number of sub-simulations to predict
 the deployment schedule for the next 1, 5, 10, or 20 years. However, it 
 may be possible to limit $S$ to significantly below 20 as well.
 
-Figures \ref{} - \ref{} demonstrate a convergence study for the three 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{converge-0per.eps}
+\caption{Convergence of 0\% growth rate solution for the distance between
+the demand and production curves $d(f, g)$ as a function of the number of 
+simulations. The three estimation methods are shown. Additionally, the
+$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod, 
+or \allflag method was selected as the best fit. For $2 < s$, the \allflag
+will select either $S$ or $I$.
+}
+\label{converge-0per}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{converge-1per.eps}
+\caption{Convergence of 1\% growth rate solution for the distance between
+the demand and production curves $d(f, g)$ as a function of the number of 
+simulations. The three estimation methods are shown. Additionally, the
+$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod, 
+or \allflag method was selected as the best fit. For $2 < s$, the \allflag
+will select either $S$ or $I$.
+}
+\label{converge-1per}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{converge-2per.eps}
+\caption{Convergence of 2\% growth rate solution for the distance between
+the demand and production curves $d(f, g)$ as a function of the number of 
+simulations. The three estimation methods are shown. Additionally, the
+$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod, 
+or \allflag method was selected as the best fit. For $2 < s$, the \allflag
+will select either $S$ or $I$.
+}
+\label{converge-2per}
+\end{figure}
+
+Figures \ref{converge-0per} - \ref{converge-2per} demonstrate a convergence 
+study for the three 
 different growth rates as a function of the number of simulations $s$.
-
-
