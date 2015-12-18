@@ -49,7 +49,7 @@ problems with the initial conditions, such as when 50 GWe are demanded
 but 100 GWe are already being produced.
 
 To begin the comparison, Figures \ref{demand-product-stochastic} - 
-\ref{} display the
+\ref{demand-product-all} display the
 power production for the best-guess deployment schedule $G_1$ (solid lines),
 production for the second best schedule $G_2$ (dotted lines), 
 and demand curves (dashed) for 0\%, 1\%, and 2\% growth. 
@@ -66,5 +66,32 @@ the second best guess deployment schedule. Dashed lines represent the
 demand curve that is targeted.
 }
 \label{demand-product-stochastic}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{demand-product-inner-product.eps}
+\caption{Power production to demand comparison for 20 year deployment 
+schedule optimization using only the \innerprod estimation method.
+0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines 
+represent the bestguess deployment schedule.  Dotted lines are represent 
+the second best guess deployment schedule. Dashed lines represent the 
+demand curve that is targeted.
+}
+\label{demand-product-inner-product}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\textwidth]{demand-product-all.eps}
+\caption{Power production to demand comparison for 20 year deployment 
+schedule optimization using the \allflag estimation method that selects the 
+best of both \stochastic and \innerprod estimations.
+0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines 
+represent the bestguess deployment schedule.  Dotted lines are represent 
+the second best guess deployment schedule. Dashed lines represent the 
+demand curve that is targeted.
+}
+\label{demand-product-all}
 \end{figure}
 
