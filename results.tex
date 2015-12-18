@@ -33,8 +33,9 @@ the following expression for $N$.
 N(t) = \left\lceil 10 (1 + r)^t\right\rceil
 \end{equation}
 The lower bound for the number of deployed reactor is simply set to the 
-zero vector, $M = \mathbf{0}$.  The random seed for all optimizations 
-was 424242.
+zero vector, $M = \mathbf{0}$.  A maximum of 20 simulations are allowed.
+This is because an \emph{in situ} method cannot afford many optimization 
+iterations. The random seed for all optimizations was 424242.
 
 Note that because of the integral nature of facility deployment, 
 exactly matching a continous demand curve is not possible. Slight over- 
@@ -90,8 +91,36 @@ best of both \stochastic and \innerprod estimations.
 0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines 
 represent the bestguess deployment schedule.  Dotted lines are represent 
 the second best guess deployment schedule. Dashed lines represent the 
-demand curve that is targeted.
-}
+demand curve that is targeted.}
 \label{demand-product-all}
 \end{figure}
+
+As seen in Figure \ref{demand-product-stochastic}, the \stochastic only 
+estimations follow the trend line of the growth curve.  However, for only 
+a few regions such as for 2\% growth between 2025 - 2030, does the 
+production closely match the the demand.  The second best guess for the 
+deployment schedule shows a relatively large degree of excentricity. This 
+indicates that $G_2$ at the end of the optimization is there to show the 
+Gaussian process model regions in the $\Theta$ option space that do not work. 
+
+Alternatively the inner product search estimation can be seen in Figure 
+\ref{demand-product-inner-product}. This method does a reasonable job of
+predicting a steady state scenario at later times. However, the 1\% and 2\%
+curves are largely under-predicted.  For the 2\% case, this is so severe
+as to be considered wholly wrong. This situation arises because the 
+\innerprod method can enter into deterministic traps where the same cycle
+of deployment schedules is predicted for ever.  If this happens when the 
+production curve is far from an optimum, the inner product method does not
+yeild a sufficient guess of the deployment schedule.
+
+However, combining the stochastic and inner product estimation methods limits
+the weakness of each method. Figure \ref{demand-product-all} shows the 
+production and demand information for the \allflag estimation. By inspection, 
+this method produces production curves that match the demand much more 
+closely. This is especially true for later times. Over-prediction 
+discrepencies for early times come from the fact the initially deployed 
+facilities (100 LWRs with 18 month cycles) does not precisely match an 
+initial 90 GWe target. The problem was specified this way in order to show 
+that resonable deployments are still selected even in slightly 
+unreasonable sitations.
 
