@@ -1,2 +1,44 @@
 \section{Conclusions \& Future Work}
 \label{conclusion}
+
+The WORG method provides a deployment schedule optimizer that coverges 
+both closely enough and fast enough for an \emph{in situ} optimizer inside
+of a nuclear fuel cycle simulator. The alogorithm can consistenly obtain
+tolerances of half-a-percent to a percent (1 GWe distances for over 200 GWe
+deployable) for the once-through fuel cyelc featured here in only five to 
+ten simulations. Such optimization problems are made
+more challenging due to the integral nature of facility deployment and
+that any demand curve may be requested.
+
+WORG works by setting up a Gaussian process to determine model the production
+as a function of time and the deployment schedule. This model may then
+be evalued orders of magnitude faster than running a full simulation, enabling
+the search over many potential deployment schedules. The quality of these
+possible schedules is evalued based on the dynamic time warping distance
+to the demand curve. The lowest disnatce curve is then evaluated in a
+full fuel cycle simulation. The production curve that is computed by the 
+simululator in turn goes on to update the Gaussian process model and the
+cycle repeats until the limiting conditions are met.
+
+However, choosing the deployment schedules to esitimate with the Gaussian
+process may be performed in any number of way. A blind approach would
+simply be to choose such schedules randomly from a univariate. However, 
+the WORG method has more information available to it that helps drive 
+down the number of loop iterations. This first method discussed remains 
+stochasitic but uses the inverse DTW distances of the GP model to 
+weight the deployment options, falling back to a Poisson distribution as 
+necessary. This second method minimizes the model distnace for each point 
+in time from start to end, iteratively building up a solution. Finally, 
+another estimation strategy tries both previous options and chooses the 
+best result, forcing the stochastic method two of every four iterations 
+toi avoid deterministic loops.  It is this last all-of-the-above method 
+that is seens to coverge the fastest and to the lowest distance in most 
+cases.
+
+It is important to note that the WORG algorithm is applicable to any 
+demand curve type and fuel cycle facility type. It is not restricted to 
+reactors and power.  Enrichment and seperative work units, reprocessing
+and separeations capcity, and deep geologic repositories and their
+space could be deployed via the WORG method for any applicable demand 
+curve.  Reactors were chosen as the representive keystone example.
+
