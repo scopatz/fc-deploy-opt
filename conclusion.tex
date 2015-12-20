@@ -40,5 +40,34 @@ demand curve type and fuel cycle facility type. It is not restricted to
 reactors and power.  Enrichment and seperative work units, reprocessing
 and separeations capcity, and deep geologic repositories and their
 space could be deployed via the WORG method for any applicable demand 
-curve.  Reactors were chosen as the representive keystone example.
+curve.  Reactors were chosen for study here as the representive keystone 
+example.
+
+The next major step for this work is to actually employ the WORG method in 
+a fuel cycle simulator.  However, to the best of the knowlegde of the 
+author, no existing simulator is capable of spawing forks of itself 
+during run time, rejoining the proceess, and evaluating the results of the 
+child ssimulation in the parent. Concisely, while many simulators are 
+`dynamic' in the fuel cycle sense, none are `dynamic' in the programming
+language sense. This latter usage of the term is what is required to 
+take advantage of any sophisticated \emph{in situ} deployement optimizing.
+The Cyclus fuel cycle simulator looks most promising as a platform
+for such work to be undertaken. However, many technical roadblock remain.
+
+Furthermore, adding \emph{in situ} capability also adding the additional 
+degree of freedom for how often to run the deployment schedule optimizer.
+Every time step seems excessive \emp{a priori}. Is every year, five years,
+ten years good enough? The fequency of optimization will be a key 
+parameter in any future study.
+
+In summary, the WORG algorithm provides fast and sufficiently close 
+deployment schedule optimization for any demand curve.  Many kinds of 
+facilities may be deployed to meet the same demand.  The method 
+limits the number of full fuel cycle simulations that must be performed by
+managing stochastic and inner product estimation methods. WORG
+evaluates potential deployment schedules via a dynamic time warping 
+comparison of Gaussian process models. The work here shows that this 
+method is a prime candicate for future \emph{in situ} deployment 
+optimization. 
+
 
