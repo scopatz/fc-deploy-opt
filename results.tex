@@ -95,13 +95,13 @@ estimation methods.}
 \clearpage
 
 More important than the deployment schedules themselves, however, are the
-production curves that they illicit.
+production curves that they elicit.
 Figures \ref{demand-product-stochastic} - 
 \ref{demand-product-all} display the
 power production for the best-guess deployment schedule $G_1$ (solid lines),
 production for the second best schedule $G_2$ (dotted lines), 
-and demand curves (dashed) for 0\%, 1\%, and 2\% growth. 
-Th figures show each estimation mechanism separately.
+and demand curves (dashed lines) for 0\%, 1\%, and 2\% growth. 
+The figures show each estimation mechanism separately.
 
 \begin{figure}[htb]
 \centering
@@ -143,9 +143,9 @@ demand curve that is targeted.}
 \end{figure}
 
 As seen in Figure \ref{demand-product-stochastic}, the \stochastic only 
-estimations follow the trend line of the growth curve.  However, for only 
+estimations follow the trend line of the growth curve.  However, only for
 a few regions such as for 2\% growth between 2025 - 2030, does the 
-production closely match the the demand.  The second best guess for the 
+production very closely match the the demand.  The second best guess for the 
 deployment schedule shows a relatively large degree of eccentricity. This 
 indicates that $G_2$ at the end of the optimization is there to show the 
 Gaussian process model regions in the $\Theta$ option space that do not work. 
@@ -156,13 +156,15 @@ predicting a steady state scenario at later times. However, the 1\% and 2\%
 curves are largely under-predicted.  For the 2\% case, this is so severe
 as to be considered wholly wrong. This situation arises because the 
 \innerprod method can enter into deterministic traps where the same cycle
-of deployment schedules is predicted for ever.  If this happens when the 
+of deployment schedules is predicted forever.  If such a trap is fallen
+into when the 
 production curve is far from an optimum, the inner product method does not
-yield a sufficient guess of the deployment schedule.
+yield a sufficiently close guess of the deployment schedule.
 
 However, combining the stochastic and inner product estimation methods limits
 the weakness of each method. Figure \ref{demand-product-all} shows the 
-production and demand information for the \allflag estimation. By inspection, 
+production and demand information for the \allflag estimation flag. 
+By inspection, 
 this method produces production curves that match the demand much more 
 closely. This is especially true for later times. Over-prediction 
 discrepancies for early times come from the fact the initially deployed 
@@ -172,7 +174,8 @@ that reasonable deployments are still selected even in slightly
 unreasonable situations.
 
 Still, the main purpose of the WORG algorithm is to converge as quickly as 
-possible to a reasonable best-guess. The limiting factor is the number of 
+possible to a reasonable best-guess $\Theta$. The limiting factor is the 
+number of 
 predictive simulations which must be run. WORG will always execute 
 at least three full simulations: the lower bound, the upper bound, and one
 iteration of the optimization loop. A reasonable limit on the total number 
@@ -227,7 +230,7 @@ These three figures demonstrate important properties of the WORG method.
 The first is that the \allflag estimation method here consistently has
 the lowest minimum dynamic time warping distance, and thus the best guess 
 for the deployment schedule $\Theta$.  Furthermore, the \allflag curves
-in these figures show that the best estimate consistently switches
+in these figures show that the best estimation method consistently switches
 between the inner product search and stochastic search. These imply 
 that together the \stochastic and \innerprod methods converge more quickly 
 that the sum of their parts.  This is particularly visible in the 0\% growth
@@ -242,9 +245,10 @@ do not tend to generate any measurable improvement for \stochastic or
 by a factor of two to four in the number of simulations is available.
 This equates directly to a like reduction in computational cost.
 
+Moreover,
 Figures \ref{converge-0per} - \ref{converge-2per} also show the tendency of
 the \innerprod method to become deterministically stuck when used on its own.
-In all three cases, the \innerprod method resolves to a constant by 
+In all three cases the \innerprod method resolves to a constant by 
 simulation five or ten.  In the 1\%, this solution happens to be quite close
 to the solution predicted by the \allflag method.  In the 0\% case, this
 constant meaningfully distinct, but is still more akin to the \stochastic 
@@ -254,17 +258,17 @@ recommended to use \innerprod on its own. While it may succeed, it is too
 risky because it may cease improving at the wrong place.
 
 The \stochastic estimation method is also prone to similar cyclic behavior.
-The difference between the stochastic and inner product searches, though,
-is the second best guess is also in a constant prediction cycle for 
-the \innerprod method.  With the stochastic search, the second best 
+However, in the \innerprod method, 
+is the second best guess $G_2$ is also in a constant prediction cycle along 
+with $G_1$.  With the stochastic search, the second best 
 guess has more freedom to roam the option space, creating potentially 
 different Gaussian process models with each iteration $s$.  Eventually, given 
 enough guesses and enough iterations, the stochastic model will break 
-out of a local optimum to find perhaps a better global optimum elsewhere.
+out of a local optimum to perhaps find a better global optimum elsewhere.
 For the \emph{in situ} use case, though, eventual solution is not fast
 enough.  The inner product search spans regions that the stochastic weighting
 labeled as unlikely.  This assist is what enables the \allflag method
-to be converge faster than the stochastic method on its own.  That said, 
+to converge faster than the stochastic method on its own.  That said, 
 if the \emph{in situ} use case is not relevant, the stochastic method on 
 its own could be used without any algorithmic qualms.
 
