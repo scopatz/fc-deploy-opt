@@ -3,7 +3,7 @@
 
 In order to describe the WORG method, first it is is useful to define  
 notation for demand curves and their parameterization.  Call $t$ the time
-[years] up to some maximal time $T$ (e.g. 50 years) over which the time 
+[years] up to some maximal time $T$ (e.g. 20 years) over which time the
 demand curve is know.  Then call $f(t)$ the demand curve, in the natural 
 units of the facility type ([GWe] for reactors).
 $f(t)$ may be any function that is desired, including non-differential 
@@ -13,7 +13,8 @@ starting at 90 [GWe] has the following form:
 \label{f-1}
 f(t) = 90\times 1.01^t
 \end{equation}
-Additionally, call $\Theta$ the deployment schedule for the facility.
+Additionally, call $\Theta$ the deployment schedule for the facilities that 
+may be constructed to meet the demand.
 $\Theta$ is a sequence of $P$ parameters, indexed by $p$, as seen in 
 Equation \ref{Theta}.
 \begin{equation}
@@ -24,21 +25,21 @@ Each $\theta_p$ represents that number of facilities to deploy on its
 time step. In simple cases where there is only one type of facility
 to deploy $P == T$.  However, when the deployment schedules of multiple 
 facility types are needed to meet the same demand curve, $P > T$.  The usual
-example is for transition scenarios which necessarily require multiple kinds
-of reactors.
+example for $P > T$ is for transition scenarios which necessarily require 
+multiple kinds of reactors.
 
 Now denote $M$ as the sequence for the minimum number of facilities deployable
 for the $p$-th deployment. Then call $N$ the sequence of the maximum number
 of facilcities deployable. The deployment parameters are thus each defined
 on the range $\theta_p \in [M_p, N_p]$. Furthermore, because only whole
 numbers of facilities may be deployed $\theta_p \in \N$.  It is also typical, 
-but not required for $M = \mathbf{\vec{0}}$, which is also the lower bound
-for all possible $\theta_p$ since faciliteis may not be retired by the 
+but not required for $M = \mathbf{0}$. Zero is also the lower bound
+for all possible $\theta_p$ as facilities may not be forcable retired via the
 deployment schedule.
 
 From here, call $g(t, \Theta)$ the production as a function of time for a
-given deployment facility. This has the same units as the demand curve.
-Thus for power demand and reactor deployments $g$ is in [GWe]. The 
+given deployment schedule. This has the same units as the demand curve.
+Thus for power demand and reactor deployments, $g$ is in units of [GWe]. The 
 optimization problem can now be posed as an attempt to find a $\Theta$
 that minimizes the difference between $f$ and $g$.
 

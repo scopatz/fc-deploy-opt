@@ -4,8 +4,8 @@
 The question of how to take the difference between the demand curve and 
 the production curve is an important one. The na\"ive option is to simply 
 take the $L_1$ norm of the difference between these two time series, as 
-seen in Equation \ref{delta-l1}.  However, since $g(t, \Theta)$ for 
-a simulation is expensive compute, any operation that can meaningfully 
+seen in Equation \ref{delta-l1}.  However, since the $g(t, \Theta)$ computed
+from a simulation is expensive, any operation that can meaningfully 
 exacerbate the difference between time series helps drive down the number 
 of optimization iterations.
 
@@ -13,9 +13,9 @@ Dynamic time warping is just such a mechanism. It computes
 a distance between any two time series which compounds the separation 
 between the two. Additionally, the time series are not required to be of the 
 same length, though for optimization purposes there is no reason for them 
-not to be. DTW gives a measure of amount that one time series would need to 
+not to be. DTW gives a measure of the amount that one time series would need to 
 be warped to become the other time series. It is, therefore, a holistic  
-measure that operates over the complete time series. Dynamic time warping
+measure that operates over all times. Dynamic time warping
 is more fully covered in \cite{muller}.  However, an 
 optimization-relevant introduction is given here.
 
@@ -29,7 +29,7 @@ total cost of traveling the warp path.
 
 The first step in computing a dynamic time warp distance is to 
 assemble the cost matrix. Say that the demand time series $f$ has 
-length $A$ indexed by $a$ and the production time series $g$ has 
+length $A$ indexed by $a$, and the production time series $g$ has 
 length $B$ indexed by $b$. For the optimization problem here, $A$ and $B$
 are in practice both equal to $T$.  However, it is useful to have $a$ and 
 $b$ index the two time series separately. Now denote an $A\times B$ matrix 
@@ -51,15 +51,16 @@ C_{a+1,b+1} & = \Delta L_{a,b} + \min\left[C_{a,b}, C_{a+1,b}, C_{a,b+1}\right]
 \end{equation}
 The boundary conditions above are the same as setting an infinite cost to 
 any $a \le 0$ or $b \le 0$. The cost matrix $C$ has the same units as the 
-demand curve. However, the scale of $C$ is (except for the fiducial case) 
-larger than the demand. This is because the cost matrix compounds the 
+demand curve. However, the scale of $C$ is 
+larger than the demand, 
+except for in the fiducial case. This is because the cost matrix compounds the 
 minimum value of previous entries. 
 
 Knowing a cost matrix, the warp path can be computed by traversing the 
 matrix backwards from the $(A, B)$ corner to the $(1, 1)$ corner.
 If the length of the warp is $I$ indexed by $i$, the warp path itself 
 can be thought of as a sequence of coordinate points $u_i$. For a given 
-point $u_i$ in the warp path, the previous point $u_{i-1}$ found by 
+point $u_i$ in the warp path, the previous point $u_{i-1}$ may be found by 
 picking the minimum cost point among the locations one column over $(a,b-1)$, 
 one row over $(a-1,b)$, and one previous diagonal element to $(a-1,b-1)$. 
 Equation \ref{warp-path} expresses this mathematically.
@@ -77,8 +78,8 @@ length of the warp path.
 \label{d-calc-ab}
 d(f, g) = \frac{C_{A,B}}{A + B}
 \end{equation}
-However, because the demand curve and the production curve that is predicted
-or calculated are typically defined on the same time grid, $d$ can be further
+However, because the demand curve and the production curve 
+are often defined on the same time grid, $d$ can be further
 reduced to the following:
 \begin{equation}
 \label{d-calc}
@@ -87,12 +88,12 @@ d(f, g) = \frac{C_{T,T}}{2T}
 Therefore, $d$ has the same units as the demand curve, production curve, 
 and cost matrix.
 
-As an example, take 1\% growth that starts with 90 GWe in the year 
+As an example, take a 1\% growth that starts with 90 GWe in the year 
 2016 as the demand curve. Then consider a production curve that 
-under produces the demand by 5\% for 25 years before switching to over 
-producing this curve by 5\% for the next 25 years.  
+under-produces the demand by 5\% for 25 years before switching to 
+over-producing this curve by 5\% for the next 25 years.  
 Figure \ref{cost-demand-to-production} shows the dynamic time warping 
-between these two.
+cost matrix between these two time series as a heat map.
 
 \begin{figure}[htb]
 \centering
@@ -110,8 +111,8 @@ curves is presented as the white curve on top of the heat map in
 Figure \ref{cost-demand-to-production}. 
 Recognize that $u$ is monotonic along both time axes. Furthermore, the precise
 path of $u$ minimizes the cost matrix at every step. Regions of increased 
-cost in the cost matrix have the repel the warp path. Incidentally, the 
-distance $d$ between the demand and production curves happens 
+cost in the cost matrix can be seen to repel the warp path. The 
+distance $d$ between the demand and production curves here happens 
 to be 0.756 GWe.
 
 Dynamic time warping distance can therefore be used as an objective function 
