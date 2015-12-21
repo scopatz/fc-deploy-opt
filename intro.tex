@@ -3,13 +3,14 @@
 
 With the recent advent of agent-based nuclear fuel cycle simulators, such as 
 Cyclus \cite{DBLP:journals/corr/HuffGCFMOSSW15,cyclus_v1_0}, there comes the 
-possibility to make \emph{in situ} facility deployment decisions. This 
-agency would more fully model real-world fuel cycles, where institutions
+possibility to make \emph{in situ}, dynamic facility deployment decisions.
+This  would more fully model real-world fuel cycles where institutions 
+(such as utility companies)
 predict future demand and choose their future deployment schedules 
 appropriately. However, one of the major challenges to making \emph{in situ}
 deployment decisions is the speed at which ``good enough'' decisions can 
 be made. This paper proposes three related deployment-specific optimization 
-algorithms that can be used for any facility type.
+algorithms that can be used for any demand curve and facility type.
 
 The demands of a fuel cycle scenario can often be simply stated, e.g. 
 1\% growth in power production [GWe]. Picking a deployment schedule for a 
@@ -23,8 +24,8 @@ the actual simulator. This process is repeated until an optimal deployment
 schedule for the given demand is found.
 
 Importantly, by using the Gaussian process surrogates, the number of 
-simulation realizations that must be executed as part of the optimization is 
-reduced to only a handful. Furthermore, it is at least two 
+simulation realizations that must be executed as part of the optimization may 
+be reduced to only a handful. Furthermore, it is at least two 
 orders-of-magnitude faster to test the model than it is to run a single
 low-fidelity fuel cycle simulation. Because of the relative cheapness, it 
 is suitable to be used inside of a fuel cycle simulation. Traditional
