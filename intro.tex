@@ -27,15 +27,16 @@ Importantly, by using the Gaussian process surrogates, the number of
 simulation realizations that must be executed as part of the optimization may 
 be reduced to only a handful. Furthermore, it is at least two 
 orders-of-magnitude faster to test the model than it is to run a single
-low-fidelity fuel cycle simulation. Because of the relative cheapness, it 
+low-fidelity fuel cycle simulation. Because of the relative computational 
+cheapness, it 
 is suitable to be used inside of a fuel cycle simulation. Traditional
 \emph{ex situ} optimizers may be able to find more precise solutions but at a
 computational cost beyond the scope and need of an \emph{in situ} use case.
 
-Every iteration of warp optimization of regressed Gaussian processes (WORG) 
+Every iteration of the warp optimization of regressed Gaussian processes (WORG) 
 method described here has two phases. The first is an estimation phase where 
 the Gaussian process model is built and evaluated. The second takes the 
-deployment schedule from the estimation phase and run it in a fuel cycle 
+deployment schedule from the estimation phase and runs it in a fuel cycle 
 simulator. The results of the simulator of the $s$-th iteration are then 
 used to inform the model on the $(s+1)$-th iteration. 
 
@@ -43,15 +44,16 @@ Inside of each estimation phase there are three possible strategies for
 choosing the next deployment schedule.  The first is to sample of the 
 space of all possible deployment strategies stochastically and then take the 
 best guess.  The second is to search through the inner product of all choices,
-picking the best option for each deployment parameter. The third option 
-is to perform the previous two strategies and determine which one picked
-has the better guess.
+picking the best option for each deployment parameter. The third strategy
+is to perform the two previous strategies and determine which one has picked
+the better guess.
 
 Nuclear fuel cycle demand curve optimization faces many challenges. 
-Foremost among is that even though the demand curve is specified on the 
-range of the reals, the optimization parameters are fundamentally 
+Foremost among these is that even though the demand curve is specified on 
+the range of the real numbers, the optimization parameters are fundamentally 
 integral in nature. For a discrete time simulator, deployments can only 
-be issued in multiples of the size of the time step \citeme. Furthermore, 
+be issued in multiples of the size of the time step 
+\cite{kelton2000simulation}. Furthermore, 
 it is not possible to deploy only part of a facility; the facility is either 
 deployed or it is not. While it may be possible to deploy a facility and 
 only run it at partial capacity, most fuel cycle models do not support this
