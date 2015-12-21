@@ -6,10 +6,10 @@ Cyclus \cite{DBLP:journals/corr/HuffGCFMOSSW15,cyclus_v1_0}, there comes the
 possibility to make \emph{in situ} facility deployment decisions. This 
 agency would more fully model real-world fuel cycles, where institutions
 predict future demand and choose their future deployment schedules 
-approriately. However, one of the major challenges to making \emph{in situ}
+appropriately. However, one of the major challenges to making \emph{in situ}
 deployment decisions is the speed at which ``good enough'' decisions can 
 be made. This paper proposes three related deployment-specific optimization 
-algorithims that can be used for any facility type.
+algorithms that can be used for any facility type.
 
 The demands of a fuel cycle scenario can often be simply stated, e.g. 
 1\% growth in power production [GWe]. Picking a deployment schedule for a 
@@ -26,21 +26,21 @@ Importantly, by using the Gaussian process surrogates, the number of
 simulation realizations that must be executed as part of the optimization is 
 reduced to only a handful. Furthermore, it is at least two 
 orders-of-magnitude faster to test the model than it is to run a single
-low-fidelity fuel cycle simulation. Because of the realtive cheapness, it 
+low-fidelity fuel cycle simulation. Because of the relative cheapness, it 
 is suitable to be used inside of a fuel cycle simulation. Traditional
 \emph{ex situ} optimizers may be able to find more precise solutions but at a
 computational cost beyond the scope and need of an \emph{in situ} use case.
 
 Every iteration of warp optimization of regressed Gaussian processes (WORG) 
-method described here has two phases. The first is an esitmation phase where 
+method described here has two phases. The first is an estimation phase where 
 the Gaussian process model is built and evaluated. The second takes the 
 deployment schedule from the estimation phase and run it in a fuel cycle 
 simulator. The results of the simulator of the $s$-th iteration are then 
 used to inform the model on the $(s+1)$-th iteration. 
 
 Inside of each estimation phase there are three possible strategies for 
-chosing the next deployment schedule.  The first is to sample of the 
-space of all possible deployment strategies stochatically and then take the 
+choosing the next deployment schedule.  The first is to sample of the 
+space of all possible deployment strategies stochastically and then take the 
 best guess.  The second is to search through the inner product of all choices,
 picking the best option for each deployment parameter. The third option 
 is to perform the previous two strategies and determine which one picked
@@ -48,7 +48,7 @@ has the better guess.
 
 Nuclear fuel cycle demand curve optimization faces many challenges. 
 Foremost among is that even though the demand curve is specified on the 
-range of the reals, the optimization parameters are fundementtally 
+range of the reals, the optimization parameters are fundamentally 
 integral in nature. For a discrete time simulator, deployments can only 
 be issued in multiples of the size of the time step \citeme. Furthermore, 
 it is not possible to deploy only part of a facility; the facility is either 
@@ -80,18 +80,18 @@ require too many full realizations in order to form an accurate model.
 WORG, on the other hand, using the dynamic time warping distance as a 
 more separative measure of how two time series differ than just a simple
 L1 norm (or similar). This drives the estimation phase to make better choices
-sooner, and help converge to a resonable deployment schedule sooner. 
-The stochatsic strategy for WORG also utilizes Gaussian processes to 
+sooner, and help converge to a reasonable deployment schedule sooner. 
+The stochastic strategy for WORG also utilizes Gaussian processes to 
 weight the choice of parameters.  This guides the guesses for the deployment
 schedules such that fewer guesses are needed, while not fully restricting 
 any option.  So while WORG relies on Gaussian processes, it does so in a way
 that is distinct from normal kriging. WORG
-takes advanage of the \emph{a priori} knowledge that a deployment 
+takes advantage of the \emph{a priori} knowledge that a deployment 
 schedule is requested to meet a demand curve. 
 
 The structure of the WORG method is detailed in \S\ref{method}. 
 The different strategies for selecting a best-guess estimate of the 
-deploytment schedule are then discussed in \S\ref{selecting}. Performance
+deployment schedule are then discussed in \S\ref{selecting}. Performance
 and results of the method for a sample once-through fuel cycle scenario 
 are presented in \S\ref{results}. Finally, \S\ref{conclusion} summarizes
-WORG and list oppurtunities for future work.
+WORG and list opportunities for future work.
