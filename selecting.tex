@@ -92,35 +92,36 @@ is minimized.
 \label{lambda}
 \lambda_p = \theta_p | \mathrm{argmin}(D) 
 \end{equation}
-Hence, the Poisson probability distribution is, 
+Hence, the Poisson probability distribution for the $n$-th weight of the
+$p$-th deployment parameter is, 
 \begin{equation}
 \label{poisson}
-\mathrm{Poisson(n)} = \frac{\lambda^n}{n!} e^{-\lambda}
+\mathrm{Poisson(n)} = \frac{(\lambda_p)^n}{n!} e^{-\lambda_p}
 \end{equation}
 Now, because $n$ is bounded, it is important to renormalize Equation 
 \ref{poisson} when constructing stochastic weights.
 \begin{equation}
 \label{poisson-w}
 \begin{split}
-w_{n,p} & = \frac{\frac{\lambda^n}{n!} e^{-\lambda}}
-                 {\sum_{m=M_p}^{N_p} \frac{\lambda^m}{m!} e^{-\lambda}}\\
-        & = \frac{\lambda^n}
-                 {n!\sum_{m=M_p}^{N_p} \frac{\lambda^m}{m!}}\\
+w_{n,p} & = \frac{\frac{(\lambda_p)^n}{n!} e^{-\lambda_p}}
+                 {\sum_{m=M_p}^{N_p} \frac{(\lambda_p)^m}{m!} e^{-\lambda_p}}\\
+        & = \frac{(\lambda_p)^n}
+                 {n!\sum_{m=M_p}^{N_p} \frac{(\lambda_p)^m}{m!}}\\
 \end{split}
 \end{equation}
 Poisson-based weights could be used exclusively, foregoing the inverse 
-distance Guassian process models completely. However, the Poisson-only 
+distance Guassian process models completely. However, a Poisson-only 
 method takes into account less information about the demand-to-production
-curve distances.  It was therefore observed to converge more slowly 
+curve distances. It was therefore observed to converge more slowly 
 on an optimum than using Poisson weights as a backup.  Since the total 
 number of simulations is aiming to be minimized for \emph{in situ} use, 
 the WORG method uses Poisson weights as a fallback only.
 
 After weights are computed for all $P$ deployment parameters, a set of 
 $\Gamma$ deployment schedules may be stochastically chosen. The Gaussian
-proccess each $g_*(\mathbf{t}, \Theta_\gamma)$ should be evaluated and the
-dynamic time warping distance computed. The deployment schedule with 
-the minimum distance is then selected.
+proccess for each $g_*(\mathbf{t}, \Theta_\gamma)$ is then evaluated and the
+dynamic time warping distance to the demand curve is computed. The 
+deployment schedule with the minimum distance is then selected and returned.
 
 
 
