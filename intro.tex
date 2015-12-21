@@ -56,11 +56,12 @@ be issued in multiples of the size of the time step
 \cite{kelton2000simulation}. Furthermore, 
 it is not possible to deploy only part of a facility; the facility is either 
 deployed or it is not. While it may be possible to deploy a facility and 
-only run it at partial capacity, most fuel cycle models do not support this
-for key faciities.  For example, it is unlikely that a utility would build 
+only run it at partial capacity, most fuel cycle models do not support such
+a feature for
+keystone facilities.  For example, it is unlikely that a utility would build 
 a new reactor only to run it at 50\% power. Thus, deployment is an integer 
 programming problem, as oppossed to its easier linear programming cousin
-\citeme.
+\cite{vanderbei2001linear}.
 
 Furthermore, the option space is combinatorically large since the 
 question is, ``How many facilities should be deployed on each time step?'' 
