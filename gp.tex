@@ -155,7 +155,8 @@ around Gaussian processes, and thus is preferred for WORG over scikit-learn,
 which is a general purpose machine learning library.
 
 As an example, consider a Gaussian process between two power production 
-curves. The first is a nominal 1\% growth in GWe for 50 years starting at 
+curves similar to the example used in \S\ref{dtw}. The first is a nominal 1\% growth 
+in GWe for 50 years starting at 
 90 GWe in 2016. The second curve under produces the first curve by 10\% 
 for the first 25 years and over produces by 10\% for the last 25 years.
 Additionally, assume that there is a 10\% error on the training data set.
@@ -178,13 +179,14 @@ The simple example above does not take advantage of an important
 feature of Gaussian processes. Namely, it is not limited to two production
 curves in the training set.  As many as desirable may be used.  This will
 allow the WORG algorithm to dynamically adjust the number of $Z$ simulations 
-are used to predict the next deployment schedule. This allows WORG to 
-effortlessly expand $Z$ when new, useful simulations yield valuable production
-curves.  However, it also allows $Z$ to contract to discard production
+which are used to predict the next deployment schedule. WORG is thus capabale
+of 
+effortlessly expanding $Z$ when new and useful simulations yield valuable production
+curves.  However, it also enables $Z$ to contract to discard production
 curves that would drive the deployment schedule away from an optimum.
 
 Now that the Gaussian process regression and dynamic time warping tools have 
 been added to the toolbox, the architecture of the WORG algorithm can 
-itself be examined.
+itself be described.
 
 \clearpage
