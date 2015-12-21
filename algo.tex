@@ -7,24 +7,26 @@ before the optimization loop. Additionally, each iteration decides
 which information from the previous simulations is worth keeping for the
 next estimation. Furthermore, the method of estimating deployment 
 schedules may be altered each iteration.  Listing \ref{worg-pseudo}
-shows the WORG algorithm as Python pseudo-code. A detailed walk-through 
+shows the WORG algorithm as Python pseudo-code. A detailed walkthrough 
 explanation of this code will now be presented.
 
 Begin by initializing three empty sequences $\vec{\Theta}$, $G$, and $D$.
 Each element of these series represents deployment schedule $\Theta$, 
 a production curve $g(t, \Theta)$, and a dynamic time warping history 
-between the demand and production curves $d(f, g)$ as seen previously.
+between the demand and production curves $d(f, g)$.
 Importantly, $\vec{\Theta}$, $G$, and $D$ only contain values for
-the relevant optimization window. For example, root finding algorithms
+the relevant optimization window $Z$. For example, root finding algorithms
 such as Newton's method and the bisection method have a length-2 window
-since they use the $(s-1)^\mathrm{th}$ point and the $s^\mathrm{th}$ point
-to compute the $(s+1)^\mathrm{th}$ point. Since a Gaussian process model is 
-formed, any or all of the $s$ iteration information may be used. However, 
-Allowing the time window to be either two or three depending on the 
+since they use the $(z-1)^\mathrm{th}$ point and the $z^\mathrm{th}$ point
+to compute the $(z+1)^\mathrm{th}$ guess. Since a Gaussian process model is 
+formed, any or all of the $s$ iterations may be used. However, 
+restricting the optimization window to be either two or three depending on 
+the 
 circumstances balances the need to keep the points with the lowest $d$ 
 values while pushing the model far from known regions with higher 
-distances. WORG effectively tries to have $D$ contain one high-value $d$
-and one or two low valued $d$ at all iterations. 
+distances. Essentially, WORG tries to have $D$ contain one high-value $d$
+and one or two low valued $d$ at all iterations. Such a tactic helps
+form a meaningfully diverse GP model.
 
 To this end, $\vec{\Theta}$, $G$, and $D$ are initialized with two 
 bounding cases. The first is to set the deployment schedule equal to the
@@ -34,7 +36,7 @@ must be deployed at a specific point in time. Running a simulation with
 $M$ will then yield a production curve $g(f, g)$ and the DTW distance to
 this curve.  Note that just because the no facilities are deployed, the 
 production curve need not be zero due to the initial conditions of the 
-simulation, where existing facilities will continue to produce. 
+simulation. Existing initial facilities will continue to produce. 
 
 Similarly, another simulation may be executed for the maximum possible
 deployment schedule $N$. This will also provide information on the 
@@ -61,7 +63,7 @@ G.append(g)
 D.append(d)
 
 s = 2
-while MAX_D < D[-1] and s <= S:
+while MAX_D < D[-1] and s < S:
     # set estimation method
     method = initial_method
     if method == 'all' and (s%4 < 2):
@@ -88,7 +90,7 @@ while MAX_D < D[-1] and s <= S:
 The optimization loop may now be entered.  This loop has two conditions.
 The first is that the next iteration occurs only if the last distance
 is greater than a threshold value $\mathrm{MAX\_D}$. The second is that 
-the loop variable $s$ must be less than or equal the maximum number
+the loop variable $s$ must be less than the maximum number
 of iteration $S$.
 
 The first step in each iteration is to choose the estimation method. The
@@ -96,20 +98,20 @@ three mechanisms will be discussed in detail in \S\ref{selecting}. For
 the purposes of the optimization loop, they may be represented by the 
 \stochastic, \innerprod, and \allflag flags. The stochastic method 
 chooses many random deployment schedules to test. Alternatively, an inner
-product of search of the space defined my $N$ and $M$ may be performed. 
-Lastly, the \allflag performs both of the previous estimates and takes
+product search of the space defined by $M$ and $N$ may be performed. 
+Lastly, the \allflag flag performs both of the previous estimates and takes
 the one with lowest computed distance.  However, \allflag can sometimes
-declare the inner product the winner for all $s$.  This can itself 
+declare the inner product search the winner for all $s$.  This can itself 
 be problematic since this estimation method has the tendency to form 
 deterministic loops when close to an optimum. This behavior is not unlike
 similar loops formed with floating point approximations to Newton's method.
 To prevent this when using \allflag, WORG forces the stochastic method
 for two consecutive iterations out of every four.  
  
-A best-guess estimate for a deployment schedule $\Theta$ is finally 
+A best-guess estimate for a deployment schedule $\Theta$ may finally be
 made.  This takes the previous deployment schedules $\vec{\Theta}$ and
 production curves $G$ and forms a Gaussian process model. Potential 
-values for $\Theta$ are explored according to the method provide.  The 
+values for $\Theta$ are explored according to the selected estimation method.  The 
 $\Theta$ that produces the minimum dynamic time warping distance between
 the demand curve and the model $d(f, g_*)$ is then returned.
 
@@ -119,21 +121,22 @@ simulator specific.  However, the simulation combined with any post-processing
 needed should return an aggregate production curve $g_s(t, \Theta)$.  
 This is then compared to demand curve via $d(f, g_s)$. After the simulation, 
 $\Theta$, $g_s(t, \Theta)$, and $d(f, g_s)$ are appended to the 
-$\vec{\Theta}$, $G$, and $D$ sequences.  Importantly, note that the 
+$\vec{\Theta}$, $G$, and $D$ sequences.  Note that the 
 production curve and DTW distance from the simulator are appended, 
-not the production curve and distance from the estimate model.
+not the production curve and distance from the model estimate.
 
 Concluding the optimization loop, $\vec{\Theta}$, $G$, $D$, and $s$ are
 updated.  This begins by finding and keeping the two elements with the 
 lowest distances between the demand and production curves.  However, 
 if the most recent simulation yielded the largest distance, this is also
 kept for the next iteration. Keeping the largest distance serves to deter
-exploration in the direction on the next iteration.  Thus a sequence of 
+exploration in this direction on the next iteration.  Thus a sequence of 
 two or three indices is chosen. These indices are applied to redefine
 $\vec{\Theta}$, $G$, and $D$. Lastly, $s$ is incremented by one and the
 next iteration begins.
 
 The WORG algorithm presented here shows the overall structure of the 
-optimization.  However, equally important and not covered here is how the
+optimization.  However, equally important and not covered in this section 
+is how the
 estimation phase chooses $\Theta$.  The methods that WORG may use are 
-presented in the following sections, which completes the methodology. 
+presented in the following section and completes the methodology. 
