@@ -3,14 +3,14 @@
 
 The question of how to take the difference between the demand curve and 
 the production curve is an important one. The na\"ive option is to simply 
-take the $L_1$ norm of the difference between these two time sereies, as 
+take the $L_1$ norm of the difference between these two time series, as 
 seen in Equation \ref{delta-l1}.  However, since $g(t, \Theta)$ for 
 a simulation is expensive compute, any operation that can meaningfully 
-exacerbate the difference betweeen time series helps drive down the number 
+exacerbate the difference between time series helps drive down the number 
 of optimization iterations.
 
 Dynamic time warping is just such a mechanism. It computes 
-a distance between any two time series which compounds the separartion 
+a distance between any two time series which compounds the separation 
 between the two. Additionally, the time series are not required to be of the 
 same length, though for optimization purposes there is no reason for them 
 not to be. DTW gives a measure of amount that one time series would need to 
@@ -25,7 +25,7 @@ is a cost matrix $C$ that helps compute $d$ by indicating how far a point
 on $f$ is from another point on $g$. Thirdly, the warp path $u$ is the 
 minimal cost curve through the $C$ matrix from the fist point in time to 
 the last. The DTW distance can thus be interpreted as the 
-total cost of travelling the warp path.
+total cost of traveling the warp path.
 
 The first step in computing a dynamic time warp distance is to 
 assemble the cost matrix. Say that the demand time series $f$ has 

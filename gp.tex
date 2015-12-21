@@ -11,8 +11,8 @@ mass balances are not explicitly taken into account when trying to meet
 a demand curve.
 
 Alternatively, surrogate models that predict the production curve directly
-have many orders-of-magnitide fewer operations by virtue of not computing
-implict physical characteristics. This is not to say that the surrogate 
+have many orders-of-magnitude fewer operations by virtue of not computing
+implicit physical characteristics. This is not to say that the surrogate 
 models are correct.  Rather, they are simply good enough to drive an 
 optimization. Surrogate models are used here inform a simulator about where
 in the parameter space to look next. Truth about production curves should
@@ -59,7 +59,7 @@ The Gaussian process $\GP$ approximates the production curve
 given $Z$ simulators. Allow $*$ to indicate that the a quantity comes from 
 the model as opposed to coming from the simulator information. A model 
 production curve can then be written using either functional or operator
-notation, as approriate:
+notation, as appropriate:
 \begin{equation}
 \label{gp-def-approx}
 g_*(t, \Theta) \approx \GP\left(\mu(t, \Theta), 
@@ -69,7 +69,7 @@ g_*(t, \Theta) \approx \GP\left(\mu(t, \Theta),
 In machine learning terminology, $G$ serves as the training set for the 
 GP model.
 
-Now, when performation a regression on Gaussian processes, 
+Now, when performing a regression on Gaussian processes, 
 the nominal functional form for the covariance must be given. 
 Such a functional form is also known as the the kernel function.
 The kernel contains the \emph{hyperparameters} that are solved for to 
@@ -118,12 +118,12 @@ $G$ for a given time grid $\mathbf{t}$ and deployment schedule is as follows.
 Here, $\tau$ is the uncertainty in the production curves coming from the 
 simulations themselves. As most simulators do not report such uncertainties, 
 $\tau$ may be set to floating point precision. $\I$ is the usual identity 
-matrix. The hyperparameters $\ell$ and $\sigma^2$ are then adusted via 
+matrix. The hyperparameters $\ell$ and $\sigma^2$ are then adjusted via 
 standard optimization methods such that Equation \ref{log-q} is minimized. 
-This regression of the gaussian process itself yeilds the most likely 
-model of the production curve, knowning only a limited number simulations.
+This regression of the Gaussian process itself yields the most likely 
+model of the production curve, knowing only a limited number simulations.
 
-However, the purpose of such a Guassian process regression is to evaluate 
+However, the purpose of such a Gaussian process regression is to evaluate 
 the production curve at points in time and for deployment schedules that 
 have not been simulated. Take a time grid $\mathbf{t_*}$ and a hypothetical
 deployment schedule $\Theta_*$. Now call the covariance vector between
@@ -144,8 +144,8 @@ is not needed.  Off-the-shelf Gaussian process modeling software
 libraries already exist and are applicable to the regression problem here.
 Scikit-learn v0.17 \cite{scikit-learn} and George v0.2.1 \cite{hodlr} 
 implement such a method and have a Python interface. George is specialized 
-around Gaussian processes, and thus is preffered for WORG over scikit-learn, 
-which is a genereal purpose machine learning library.
+around Gaussian processes, and thus is preferred for WORG over scikit-learn, 
+which is a general purpose machine learning library.
 
 As an example, consider a Gaussian process between two power production 
 curves. The first is a nominal 1\% growth in GWe for 50 years starting at 
@@ -160,24 +160,24 @@ in Figure \ref{gwe-model-}.
 \centering
 \includegraphics[width=0.9\textwidth]{gwe-model-.eps}
 \caption{The Gaussian process model of a 1\% growth curve along with the
-an inital 10\% under production followed by a 10\% under production. 
+an initial 10\% under production followed by a 10\% under production. 
 The model is represented by the black line that runs between the red 
 training points. Two standard deviations form the model are displayed as the
 gray region.}
 \label{gwe-model-}
 \end{figure}
 
-The simple example above does not take advanatage of an important 
-feature of Gaussian processes. Namely, it is not limitied to two production
+The simple example above does not take advantage of an important 
+feature of Gaussian processes. Namely, it is not limited to two production
 curves in the training set.  As many as desirable may be used.  This will
-allow the WORG algorith to dynamically adjust the number of $Z$ simulations 
+allow the WORG algorithm to dynamically adjust the number of $Z$ simulations 
 are used to predict the next deployment schedule. This allows WORG to 
-effortlessly expand $Z$ when new, useful simulations yeild valuable production
+effortlessly expand $Z$ when new, useful simulations yield valuable production
 curves.  However, it also allows $Z$ to contract to discard production
-curves that would drive the deployment schedule away from an omptimum.
+curves that would drive the deployment schedule away from an optimum.
 
 Now that the Gaussian process regression and dynamic time warping tools have 
-been added to the toolbox, the architechure of the WORG algorithm can 
+been added to the toolbox, the architecture of the WORG algorithm can 
 itself be examined.
 
 \clearpage
