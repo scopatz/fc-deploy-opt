@@ -63,16 +63,15 @@ a new reactor only to run it at 50\% power. Thus, deployment is an integer
 programming problem, as oppossed to its easier linear programming cousin
 \cite{vanderbei2001linear}.
 
-Furthermore, the option space is combinatorically large since the 
-question is, ``How many facilities should be deployed on each time step?'' 
-Even assuming a 50 year deployment schedule where no more than 3 facilities 
-are allowed to be deployed each time step, there are more than $10^30$ 
+As an interger programming problem, the option space is combinatorically 
+large. Assuming a 50 year deployment schedule where no more than 3 facilities 
+are allowed to be deployed each time step, there are more than $10^{30}$ 
 combinations. If every simulation took a very generous 1 sec, simulating 
-each option would still take $\approx 3\times10^12$ times the current age
+each option would still take $\approx 3\times10^{12}$ times the current age
 of the universe.
 
-Moreover, because all of the parameters are integral, there is not a 
-meaningful formualtion of the Jacobian. Derivitive-free optimizers are 
+Moreover because all of the parameters are integral, there is not a 
+meaningful formualtion of a continuous Jacobian. Derivitive-free optimizers are 
 required. Methods such as particle swarm \citeme, pswarm \citeme, and the 
 simplex method all could work.  However, typical implementations require
 more evaluations of the objective function (i.e. fuel cycle simulations)
