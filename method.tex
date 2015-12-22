@@ -3,9 +3,9 @@
 
 In order to describe the WORG method, first it is is useful to define  
 notation for demand curves and their parameterization.  Call $t$ the time
-[years] up to some maximal time $T$ (e.g. 20 years) over which time the
-demand curve is know.  Then call $f(t)$ the demand curve, in the natural 
-units of the facility type ([GWe] for reactors).
+[years] up to some maximal time horizon $T$ (e.g. 50 years) over which time 
+the demand curve is known.  Then call $f(t)$ the demand curve in the natural 
+units of the facility type (such as [GWe] for reactors).
 $f(t)$ may be any function that is desired, including non-differential 
 functions. For example, though, the demand curve for a 1\% growth rate 
 starting at 90 [GWe] has the following form:
@@ -29,11 +29,11 @@ example for $P > T$ is for transition scenarios which necessarily require
 multiple kinds of reactors.
 
 Now denote $M$ as the sequence for the minimum number of facilities deployable
-for the $p$-th deployment. Then call $N$ the sequence of the maximum number
+for each deployment parameter. Also, call $N$ the sequence of the maximum number
 of facilities deployable. The deployment parameters are thus each defined
 on the range $\theta_p \in [M_p, N_p]$. Furthermore, because only whole
 numbers of facilities may be deployed $\theta_p \in \N$.  It is also typical, 
-but not required for $M = \mathbf{0}$. Zero is also the lower bound
+but not required, for $M = \mathbf{0}$. Zero is also the lower bound
 for all possible $\theta_p$ as facilities may not be forcibly retired via the
 deployment schedule.
 

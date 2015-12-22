@@ -20,7 +20,7 @@ dynamic time warping (DTW) \cite{muller} distance is minimized
 between the demand curve and the regression of a Gaussian Process model (GP) 
 \cite{rasmussen2006gaussian} of prior simulations. This minimization produces
 a guess for a deployment schedule which is subsequently tested using 
-the actual simulator. This process is repeated until an optimal deployment
+an actual simulator. This process is repeated until an optimal deployment
 schedule for the given demand is found.
 
 Importantly, by using the Gaussian process surrogates, the number of 
@@ -31,7 +31,8 @@ low-fidelity fuel cycle simulation. Because of the relative computational
 cheapness, it 
 is suitable to be used inside of a fuel cycle simulation. Traditional
 \emph{ex situ} optimizers may be able to find more precise solutions but at a
-computational cost beyond the scope and need of an \emph{in situ} use case.
+computational cost beyond the scope and need of an \emph{in situ} use case
+that is capable of dynamic adjustment.
 
 Every iteration of the warp optimization of regressed Gaussian processes (WORG) 
 method described here has two phases. The first is an estimation phase where 
@@ -97,7 +98,8 @@ not forbidding
 any option.  So while WORG relies on Gaussian processes, it does so in a way
 that is distinct from normal kriging. WORG
 takes advantage of the \emph{a priori} knowledge that a deployment 
-schedule is requested to meet a demand curve. 
+schedule is requested to meet a demand curve. This is not a strategy a 
+generic, off-the-shelf optimizer would be capable of implementing.
 
 The structure of the WORG algorithm is detailed in \S\ref{method}. 
 The different strategies for selecting a best guess estimate of the 

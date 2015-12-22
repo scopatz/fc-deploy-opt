@@ -21,7 +21,8 @@ However, the choice of which $\theta_p$ to pick is extremely important
 as they drive the optimization. In a vanilla stochastic algorithm, 
 each $\theta_p$ would be selected as a univariate integer on the 
 range $[M_p, N_p]$.  However, this ignores the distance information $D$ 
-that is known about the training set which is used to create the GP.
+that is known about the training set which is used to create the Gaussian 
+process.
 More intelligent guesses for $\theta_p$ focus the model 
 evaluations to more promising regions of the option space.  This in turn 
 helps reduce the overall number of expensive simulations needed to find 
@@ -39,8 +40,8 @@ The $\Theta_\gamma$ which has the minimum distance $d_\gamma$ is
 taken as the best-guess deployment schedule.  The number of guesses may 
 be as large or as small as desired.  However, a reasonable number to pick 
 spans the option space. This is simply is the $L_1$ norm of the difference 
-of the inclusive bounds. Namely, set $\Gamma$ to Equation \ref{Gamma-default}
-at a minimum for stochastic estimation.
+of the inclusive bounds. Namely, set $\Gamma$ as in Equation 
+\ref{Gamma-default} for a minimum number of for stochastic guesses.
 \begin{equation}
 \label{Gamma-default}
 \Gamma = \sum_p^P (N_p - M_p + 1)
@@ -72,7 +73,7 @@ The construction, regression of hyperparameters, and evaluation of this
 model follows analogously to the production curve modeling presented in 
 \S\ref{gp}.
 
-The weights for $\theta_p$ are thus the normalized evaluation of the 
+The weights for $\theta_p$ are then the normalized evaluation of the 
 inverse distance model for all $m$ and $n$ defined on the p-th range.
 Symbolically, 
 \begin{equation}
@@ -133,13 +134,13 @@ a best-guess for $\Theta$ can also be built up iteratively over all times.
 The method here uses the same production curve Gaussian process $g_*$ to 
 predict production levels and measure the distance to the demand curve.
 However, this method minimizes the distance at time
-$t$ and then uses this inform the minimization of $t+1$. Starting at $t=1$
+$t$ and then uses this to inform the minimization of $t+1$. Starting at $t=1$
 and moving through the whole time grid to $t=T$, a complete deployment 
 schedule is generated.
 
-The following description is simplified for the case where $P==T$. However, 
+The following description is for the simplified case when $P==T$. However, 
 this method is easily extended to the case where $P > T$, such as for 
-multiple reactor times.  When $P > T$, group $\theta_p$ that occur on the 
+multiple reactor types.  When $P > T$, group $\theta_p$ that occur on the 
 same time step together and take the outer product of their options prior to
 stepping through time.
 
@@ -211,5 +212,5 @@ should be able to show that it meaningfully reduces the number of
 optimization loop iterations required.
 
 At this point, the entire WORG method has been described. A
-demonstration of how it performs for a representative fuel cycle is now
-presented. 
+demonstration of how it performs for a representative fuel cycle is 
+presented in the next section. 

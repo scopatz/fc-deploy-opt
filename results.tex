@@ -19,11 +19,11 @@ will be in the neighborhood of 1, 5, 10, or 20 years.
 The study here compares how WORG performs for 0\% (steady state), 1\%, 
 and 2\% growth curves from an initial 90 GWe target. These are examined
 using the three estimation methods variants described in the previous section.
-Calling $r$ the growth rate as a 
+Calling $\rho$ the growth rate as a 
 fraction, the demand curve is thus,
 \begin{equation}
 \label{f-rate}
-f(t) = 90 (1 + r)^t
+f(t) = 90 (1 + \rho)^t
 \end{equation}
 Moreover, the upper bound for the number of deployable facilities at 
 each time is set to be the ceiling of ten times the total growth. 
@@ -32,7 +32,7 @@ year, increase the upper bound along with the growth rate.  This yields
 the following expression for $N$.
 \begin{equation}
 \label{n-rate}
-N(t) = \left\lceil 10 (1 + r)^t\right\rceil
+N(t) = \left\lceil 10 (1 + \rho)^t\right\rceil
 \end{equation}
 The lower bound for the number of deployed reactors is taken to be the 
 zero vector, $M = \mathbf{0}$.  A maximum of twenty simulations are allowed, 
@@ -49,12 +49,12 @@ themselves. If the initial facilities do no meet the demand on their own,
 then the optimized deployment schedule is capable making up the difference.
 However if the initial facilities produce more than the demand curve, 
 the the optimizer is only capable of deploying zero facilities at these
-times. However, the WORG method does not help make radical adjustments to 
+times. The WORG method does not help make radical adjustments to 
 accommodate 
 problems with the initial conditions, such as when 50 GWe are demanded 
 but 100 GWe are already being produced.
 
-First examine Figures \ref{deploy-0} - \ref{deploy-2}, which
+First examine Figures \ref{deploy-0} - \ref{deploy-2} which
 show the optimized deployment schedule for the three estimation methods.
 The figures represent the 0\%, 1\% and 2\% growth curves respectively.
 Figures \ref{deploy-0} \& \ref{deploy-1} show that the \stochastic method
@@ -249,10 +249,10 @@ Moreover,
 Figures \ref{converge-0per} - \ref{converge-2per} also show the tendency of
 the \innerprod method to become deterministically stuck when used on its own.
 In all three cases the \innerprod method resolves to a constant by 
-simulation five or ten.  In the 1\%, this solution happens to be quite close
+simulation five or ten.  In the 1\% case, this solution happens to be quite close
 to the solution predicted by the \allflag method.  In the 0\% case, this
-constant meaningfully distinct, but is still more akin to the \stochastic 
-solution than the \allflag one.  In the 2\% case, the converged \innerprod
+constant is meaningfully distinct, but is still more akin to the \stochastic 
+solution than the \allflag solution.  In the 2\% case, the converged \innerprod
 result has little to do with the \allflag prediction.  Thus it is not
 recommended to use \innerprod on its own. While it may succeed, it is too 
 risky because it may cease improving at the wrong place.

@@ -7,9 +7,9 @@ computationally cheapest case of low-fidelity simulations. This is because a
 fuel cycle realization 
 typically computes many features that, though coupled to the production 
 curve, are not directly the production curve. For example, the mass balance of 
-the fuel cycle physically bounds the electricity production. However, the    
+the fuel cycle physically bound the electricity production. However, the    
 mass balances are not explicitly taken into account when trying to meet
-a demand curve.
+a power demand curve.
 
 Alternatively, surrogate models that predict the production curve directly
 have many orders-of-magnitude fewer operations by virtue of not computing
@@ -26,7 +26,8 @@ Gaussian processes are more fully covered elsewhere
 also been previously explored \cite{osborne2009gaussian}, though such studies 
 tend not to 
 investigate the integral problems posed by facility deployment. As with 
-dynamic time warping, a minimal but sufficient introduction to GP is presented 
+dynamic time warping, a minimal but sufficient introduction to GP regression
+is presented 
 for the purposes of the deployment optimization.
 Consider the case of $Z$ simulations indexed by $z$ that each have a 
 $\Theta_z$ deployment schedule and $g_z(t, \Theta_z)$ production curve.
@@ -60,8 +61,8 @@ since the means and covariance are a function of both the deployment
 schedule ($P$) and time ($+1$).
 
 The Gaussian process $\GP$ approximates the production curve 
-given $Z$ simulators. Allow $*$ to indicate that the a quantity comes from 
-the model as opposed to coming from the simulator information. A model 
+given $Z$ simulations. Allow $*$ to indicate that the a quantity comes from 
+the model as opposed to coming from the results of the simulator. A model 
 production curve can then be written using either functional or operator
 notation, as appropriate:
 \begin{equation}
@@ -110,7 +111,7 @@ From here, say that $\K$ is a covariance matrix
 such that the element at the $r$-th row and $r^\prime$-th column is 
 given by whichever kernel is chosen from 
 Equations \ref{exp2-kernel}-\ref{matern-52}. Then the 
-log likelihood $\log q$ of the obtaining the training set production curves 
+log likelihood $\log q$ of obtaining the training set production curves 
 $G$ for a given time grid $\mathbf{t}$ and deployment schedule is as 
 seen in Equation \ref{log-q}.
 \begin{equation}
@@ -125,9 +126,9 @@ simulations themselves. As most simulators do not report such uncertainties,
 $\tau$ may be set to floating point precision. $\I$ is the usual identity 
 matrix. The hyperparameters $\ell$ and $\sigma^2$ are then adjusted via 
 standard real-valued optimization methods such that Equation \ref{log-q} is 
-minimized. 
+as close to zero as possible. 
 This regression of the Gaussian process itself yields the most likely 
-model of the production curve, knowing only a limited number simulations.
+model of the production curve knowing only a limited number of simulations.
 
 However, the purpose of such a Gaussian process regression is to evaluate 
 the production curve at points in time and for deployment schedules that 
@@ -145,9 +146,9 @@ the following:
 Equations \ref{mean-func}-\ref{metric-model} are derived and discussed fully
 in \cite{rasmussen2006gaussian}. 
 
-However, implementing the above Gaussian process mathematics for the specific
+Implementing the above Gaussian process mathematics for the specific
 case of the WORG algorithm 
-is not needed.  Off-the-shelf Gaussian process modeling software 
+is not needed.  Free and open source Gaussian process modeling software 
 libraries already exist and are applicable to the regression problem here.
 Scikit-learn v0.17 \cite{scikit-learn} and George v0.2.1 \cite{hodlr} 
 implement such a method and have a Python interface. George is specialized 
@@ -157,9 +158,9 @@ which is a general purpose machine learning library.
 As an example, consider a Gaussian process between two power production 
 curves similar to the example used in \S\ref{dtw}. The first is a nominal 1\% growth 
 in GWe for 50 years starting at 
-90 GWe in 2016. The second curve under produces the first curve by 10\% 
-for the first 25 years and over produces by 10\% for the last 25 years.
-Additionally, assume that there is a 10\% error on the training data set.
+90 GWe in 2016. The second curve under-produces the first curve by 10\% 
+for the first 25 years and over-produces by 10\% for the last 25 years.
+Additionally, assume that there is a 10\% error on the training set data.
 This will produce a model of the mean and covariance that splits the 
 difference between these two curves. This example may be seen graphically
 in Figure \ref{gwe-model-}.
