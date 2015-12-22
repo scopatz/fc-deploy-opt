@@ -2,7 +2,7 @@
 \label{conclusion}
 
 The WORG method provides a deployment schedule optimizer that converges 
-both closely enough and fast enough for an \emph{in situ} optimizer inside
+both closely enough and fast enough to be used inside
 of a nuclear fuel cycle simulator. The algorithm can consistently obtain
 tolerances of half-a-percent to a percent (1 GWe distances for over 200 GWe
 deployable) for the once-through fuel cycle featured here in only five to 
@@ -10,7 +10,7 @@ ten simulations. Such optimization problems are made
 more challenging due to the integral nature of facility deployment and
 that any demand curve may be requested.
 
-WORG works by setting up a Gaussian process to determine model the production
+WORG works by setting up a Gaussian process to model the production
 as a function of time and the deployment schedule. This model may then
 be evaluated orders of magnitude faster than running a full simulation, enabling
 the search over many potential deployment schedules. The quality of these
@@ -21,10 +21,10 @@ simulator in turn goes on to update the Gaussian process model and the
 cycle repeats until the limiting conditions are met.
 
 However, choosing the deployment schedules to estimate with the Gaussian
-process may be performed in any number of way. A blind approach would
+process may be performed in a number of ways. A blind approach would
 simply be to choose such schedules randomly from a univariate. However, 
 the WORG method has more information available to it that helps drive 
-down the number of loop iterations. This first method discussed remains 
+down the number of loop iterations. The first method discussed remains 
 stochastic but uses the inverse DTW distances of the GP model to 
 weight the deployment options, falling back to a Poisson distribution as 
 necessary. This second method minimizes the model distance for each point 
@@ -32,7 +32,7 @@ in time from start to end, iteratively building up a solution. Finally,
 another estimation strategy tries both previous options and chooses the 
 best result, forcing the stochastic method two of every four iterations 
 to avoid deterministic loops.  It is this last all-of-the-above method 
-that is seems to converge the fastest and to the lowest distance in most 
+that is seens to converge the fastest and to the lowest distance in most 
 cases.
 
 It is important to note that the WORG algorithm is applicable to any 
@@ -46,28 +46,20 @@ example.
 The next major step for this work is to actually employ the WORG method in 
 a fuel cycle simulator.  However, to the best of the knowledge of the 
 author, no existing simulator is capable of spawning forks of itself 
-during run time, rejoining the procedures, and evaluating the results of the 
-child simulation in the parent. Concisely, while many simulators are 
+during run time, rejoining the processes, and evaluating the results of the 
+child simulations in the parent simulation. Concisely, while many simulators 
+are 
 `dynamic' in the fuel cycle sense, none are `dynamic' in the programming
 language sense. This latter usage of the term is what is required to 
-take advantage of any sophisticated \emph{in situ} deployment optimizing.
+take advantage of any sophisticated \emph{in situ} deployment optimizer.
 The Cyclus fuel cycle simulator looks most promising as a platform
-for such work to be undertaken. However, many technical roadblock remain.
+for such work to be undertaken. However, many technical roadblocks 
+on the software side remain, even for Cyclus.
 
-Furthermore, adding \emph{in situ} capability also adding the additional 
-degree of freedom for how often to run the deployment schedule optimizer.
+Furthermore, adding \emph{in situ} capability also adds the additional 
+degree of freedom of how often to run the deployment schedule optimizer.
 Every time step seems excessive \emph{a priori}. Is every year, five years,
-ten years good enough? The frequency of optimization will be a key 
-parameter in any future study.
-
-In summary, the WORG algorithm provides fast and sufficiently close 
-deployment schedule optimization for any demand curve.  Many kinds of 
-facilities may be deployed to meet the same demand.  The method 
-limits the number of full fuel cycle simulations that must be performed by
-managing stochastic and inner product estimation methods. WORG
-evaluates potential deployment schedules via a dynamic time warping 
-comparison of Gaussian process models. The work here shows that this 
-method is a prime candidate for future \emph{in situ} deployment 
-optimization. 
-
-
+or ten years sufficient? How does this degree of freedom balance with the
+time horizon of the optimizer? These questions remain unanswered, even 
+in a heuristic sense, and thus the frequency of optimization will be a key 
+parameter in a future \emph{in situ} study.
