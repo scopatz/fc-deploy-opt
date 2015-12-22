@@ -5,7 +5,7 @@ The WORG method provides a deployment schedule optimizer that converges
 both closely enough and fast enough to be used inside
 of a nuclear fuel cycle simulator. The algorithm can consistently obtain
 tolerances of half-a-percent to a percent (1 GWe distances for over 200 GWe
-deployable) for the once-through fuel cycle featured here in only five to 
+deployable) for the once-through fuel cycle featured here within only five to 
 ten simulations. Such optimization problems are made
 more challenging due to the integral nature of facility deployment and
 that any demand curve may be requested.
@@ -44,7 +44,7 @@ curve.  Reactors were chosen for study here as the representative keystone
 example.
 
 The next major step for this work is to actually employ the WORG method in 
-a fuel cycle simulator.  However, to the best of the knowledge of the 
+a fuel cycle simulator.  However, to the best knowledge of the 
 author, no existing simulator is capable of spawning forks of itself 
 during run time, rejoining the processes, and evaluating the results of the 
 child simulations in the parent simulation. Concisely, while many simulators 
@@ -58,8 +58,9 @@ on the software side remain, even for Cyclus.
 
 Furthermore, adding \emph{in situ} capability also adds the additional 
 degree of freedom of how often to run the deployment schedule optimizer.
-Every time step seems excessive \emph{a priori}. Is every year, five years,
+Running WORG each and every
+time step seems excessive \emph{a priori}. Is every year, five years,
 or ten years sufficient? How does this degree of freedom balance with the
-time horizon of the optimizer? These questions remain unanswered, even 
+time horizon $T$ specificed in the optimizer? These questions remain unanswered, even 
 in a heuristic sense, and thus the frequency of optimization will be a key 
 parameter in a future \emph{in situ} study.
