@@ -3,7 +3,7 @@
 
 There are three methods for choosing a new deployment schedule $\Theta$ 
 to attempt to run in a simulator. The first is stochastic with weighted
-probablities for the $\theta_p$.  The second does a determintsic sweep 
+probabilities for the $\theta_p$.  The second does a deterministic sweep 
 iteratively over all options, minimizing the dynamic time warping distance
 at each point in time for each deployment parameter.  The last combines
 these two and choose the one with the minimum distance to the demand curve.
@@ -14,11 +14,11 @@ significantly faster than performing even a low-fidelity simulation.
 As a demonstrative example, say each evaluation of $d(f, g_*)$ takes a tenth
 of a second (which is excessively long) and $d(f, g_s)$ for a low fidelity
 simulation takes ten seconds (which is reasonable), the model evaluation 
-is still one hundred times faster.  Furthermore, the cost of constucting 
-the GP model can is amotorized over the number of guesses that are made.
+is still one hundred times faster.  Furthermore, the cost of constructing 
+the GP model can is amortized over the number of guesses that are made.
 
 However, the choice of which $\theta_p$ to pick is extremely important
-as they drive the optimization. In a vanillia stochastic algorithm, 
+as they drive the optimization. In a vanilla stochastic algorithm, 
 each $\theta_p$ would be selected as a univariate integer on the 
 range $[M_p, N_p]$.  However, this ignores the distance information $D$ 
 that is known about the training set which is used to create the GP.
@@ -110,7 +110,7 @@ w_{n,p} & = \frac{\frac{(\lambda_p)^n}{n!} e^{-\lambda_p}}
 \end{split}
 \end{equation}
 Poisson-based weights could be used exclusively, foregoing the inverse 
-distance Guassian process models completely. However, a Poisson-only 
+distance Gaussian process models completely. However, a Poisson-only 
 method takes into account less information about the demand-to-production
 curve distances. It was therefore observed to converge more slowly 
 on an optimum than using Poisson weights as a backup.  Since the total 
@@ -119,7 +119,7 @@ the WORG method uses Poisson weights as a fallback only.
 
 After weights are computed for all $P$ deployment parameters, a set of 
 $\Gamma$ deployment schedules may be stochastically chosen. The Gaussian
-proccess for each $g_*(\mathbf{t}, \Theta_\gamma)$ is then evaluated and the
+process for each $g_*(\mathbf{t}, \Theta_\gamma)$ is then evaluated and the
 dynamic time warping distance to the demand curve is computed. The 
 deployment schedule with the minimum distance is then selected and returned.
 
@@ -129,7 +129,7 @@ deployment schedule with the minimum distance is then selected and returned.
 \label{inner-prod}
 
 As an alternative to the stochastic method demonstrated in \S\ref{stochastic}, 
-a best-guess for $\Theta$ can also be built up iterively over all times.
+a best-guess for $\Theta$ can also be built up iteratively over all times.
 The method here uses the same production curve Gaussian process $g_*$ to 
 predict production levels and measure the distance to the demand curve.
 However, this method minimizes the distance at time
@@ -194,9 +194,9 @@ make minor improvements on a $\Theta$ which is already close to a best-guess.
 It is, after all, searching globally for something better.
 
 On the other hand, the inner product method is designed to search around 
-the prart of the Gaussian process model already produces good results. It
+the part of the Gaussian process model which already produces good results. It
 is meant to make minor adjustments as it goes.  Unfortunately, this means
-the inner product method can more easily get stuck in a cycle  wehere it 
+the inner product method can more easily get stuck in a cycle  where it 
 produces the same series of deployment schedules over and over again. 
 It has no mechanism on its own to break out of such cycles.
 

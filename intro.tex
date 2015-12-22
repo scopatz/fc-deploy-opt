@@ -60,10 +60,10 @@ only run it at partial capacity, most fuel cycle models do not support such
 a feature for
 keystone facilities.  For example, it is unlikely that a utility would build 
 a new reactor only to run it at 50\% power. Thus, deployment is an integer 
-programming problem, as oppossed to its easier linear programming cousin
+programming problem, as opposed to its easier linear programming cousin
 \cite{vanderbei2001linear}.
 
-As an interger programming problem, the option space is combinatorically 
+As an integer programming problem, the option space is combinatorially 
 large. Assuming a 50 year deployment schedule where no more than 3 facilities 
 are allowed to be deployed each time step, there are more than $10^{30}$ 
 combinations. If every simulation took a very generous 1 sec, simulating 
@@ -71,7 +71,7 @@ each option would still take $\approx 3\times10^{12}$ times the current age
 of the universe.
 
 Moreover because all of the parameters are integral, there is not a 
-meaningful formualtion of a continuous Jacobian. Derivitive-free optimizers are 
+meaningful formulation of a continuous Jacobian. Derivative-free optimizers are 
 required. Methods such as particle swarm \cite{kennedy2010particle}, 
 pswarm \cite{vaz2009pswarm}, and the 
 simplex method \cite{vanderbei2001linear} all could work.  However, typical 
@@ -92,8 +92,8 @@ sooner. This in turn helps the overall algorithm converge on a reasonable
 deployment schedule sooner. 
 The stochastic strategy for WORG additionally utilizes Gaussian processes to 
 weight the choice of parameters. This guides the guesses for the deployment
-schedules such that fewer guesses are needed while simeltaneously 
-not forbiding  
+schedules such that fewer guesses are needed while simultaneously 
+not forbidding  
 any option.  So while WORG relies on Gaussian processes, it does so in a way
 that is distinct from normal kriging. WORG
 takes advantage of the \emph{a priori} knowledge that a deployment 

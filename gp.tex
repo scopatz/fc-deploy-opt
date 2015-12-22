@@ -25,10 +25,10 @@ Gaussian processes are more fully covered elsewhere
 \cite{rasmussen2006gaussian}. Using Gaussian process for optimization has 
 also been previously explored \cite{osborne2009gaussian}, though such studies 
 tend not to 
-investigate the intergal problems posed by facility deployment. As with 
+investigate the integral problems posed by facility deployment. As with 
 dynamic time warping, a minimal but sufficient introduction to GP is presented 
 for the purposes of the deployment optimization.
-Conside the case of $Z$ simulations indexed by $z$ that each have a 
+Consider the case of $Z$ simulations indexed by $z$ that each have a 
 $\Theta_z$ deployment schedule and $g_z(t, \Theta_z)$ production curve.
 
 A Gaussian process of these $Z$ simulations is set by its mean and 
@@ -179,7 +179,7 @@ The simple example above does not take advantage of an important
 feature of Gaussian processes. Namely, it is not limited to two production
 curves in the training set.  As many as desirable may be used.  This will
 allow the WORG algorithm to dynamically adjust the number of $Z$ simulations 
-which are used to predict the next deployment schedule. WORG is thus capabale
+which are used to predict the next deployment schedule. WORG is thus capable
 of 
 effortlessly expanding $Z$ when new and useful simulations yield valuable production
 curves.  However, it also enables $Z$ to contract to discard production
