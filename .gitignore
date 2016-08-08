@@ -3,6 +3,7 @@
 *.bbl
 *.blg
 *.dvi
+*.out
 *.pdf
 
 # custom
