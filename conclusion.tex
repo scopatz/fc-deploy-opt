@@ -50,13 +50,22 @@ problems. Reactors and power generation were chosen for study here as the
 representative keystone example, though the algorithm is not tied to this
 particular problem.
 
+The speed of convergence of the WORG algorithm is effectively required for
+high-fidelity simulation optimization. Single realizations may take hours or
+longer to run. Executing hundred, thousands, or more realizations becomes
+impractical. On the other hand, lower fidelity simulations that have short
+execution times may be perfectly well optimizied by an \emph{ex situ}
+method. With fast run times, WORG would be implemented \emph{in situ} as
+a mechanism for automation and avoiding external wrapper codes implicit
+in an \emph{ex situ} optimizer. The speed of convergence for lower fidelity
+simulations, while desirable conceptually, is not required in practice.
+
 The next major step for this work is to actually employ the WORG method in
 a fuel cycle simulator.  However, to the best knowledge of the
 author, no existing simulator is capable of spawning forks of itself
 during run time, rejoining the processes, and evaluating the results of the
 child simulations in the parent simulation. Concisely, while many simulators
-are
-`dynamic' in the fuel cycle sense, none are `dynamic' in the programming
+are `dynamic' in the fuel cycle sense, none are `dynamic' in the programming
 language sense. This latter usage of the term is what is required to
 take advantage of any sophisticated \emph{in situ} deployment optimizer.
 The Cyclus fuel cycle simulator looks most promising as a platform
