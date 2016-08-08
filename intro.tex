@@ -1,109 +1,123 @@
 \section{Introduction}
 \label{intro}
 
-With the recent advent of agent-based nuclear fuel cycle simulators, such as 
-Cyclus \cite{DBLP:journals/corr/HuffGCFMOSSW15,cyclus_v1_0}, there comes the 
+With the recent advent of agent-based nuclear fuel cycle simulators, such as
+Cyclus \cite{DBLP:journals/corr/HuffGCFMOSSW15,cyclus_v1_0}, there comes the
 possibility to make \emph{in situ}, dynamic facility deployment decisions.
-This  would more fully model real-world fuel cycles where institutions 
+This  would more fully model real-world fuel cycles where institutions
 (such as utility companies)
-predict future demand and choose their future deployment schedules 
+predict future demand and choose their future deployment schedules
 appropriately. However, one of the major challenges to making \emph{in situ}
-deployment decisions is the speed at which ``good enough'' decisions can 
-be made. This paper proposes three related deployment-specific optimization 
-algorithms that can be used for any demand curve and facility type.
+deployment decisions is the speed at which ``good enough'' decisions can
+be made. This paper proposes three related deployment-specific optimization
+algorithms that can be used for any set of demand curves and facility types.
 
-The demands of a fuel cycle scenario can often be simply stated, e.g. 
-1\% growth in power production [GWe]. Picking a deployment schedule for a 
-certain kind of facility (e.g. reactors) can thus be seen as an optimization 
-problem of how well the deployment schedule meets the demand. Here, the 
-dynamic time warping (DTW) \cite{muller} distance is minimized 
-between the demand curve and the regression of a Gaussian Process model (GP) 
+The demands of a fuel cycle scenario can often be simply stated, e.g.
+1\% growth in power production [GWe]. Picking a deployment schedule for a
+certain kind of facility (e.g. reactors) can thus be seen as an optimization
+problem of how well the deployment schedule meets the demand. Here, the
+dynamic time warping (DTW) \cite{muller} distance is minimized
+between the demand curve and the regression of a Gaussian Process model (GP)
 \cite{rasmussen2006gaussian} of prior simulations. This minimization produces
-a guess for a deployment schedule which is subsequently tested using 
+a guess for a deployment schedule which is subsequently tested using
 an actual simulator. This process is repeated until an optimal deployment
 schedule for the given demand is found.
 
-Importantly, by using the Gaussian process surrogates, the number of 
-simulation realizations that must be executed as part of the optimization may 
-be reduced to only a handful. Furthermore, it is at least two 
+Importantly, by using the Gaussian process surrogates, the number of
+simulation realizations that must be executed as part of the optimization may
+be reduced to only a handful. Furthermore, it is at least two
 orders-of-magnitude faster to test the model than it is to run a single
-low-fidelity fuel cycle simulation. Because of the relative computational 
-cheapness, it 
+low-fidelity fuel cycle simulation. Because of the relative computational
+cheapness, it
 is suitable to be used inside of a fuel cycle simulation. Traditional
 \emph{ex situ} optimizers may be able to find more precise solutions but at a
 computational cost beyond the scope and need of an \emph{in situ} use case
 that is capable of dynamic adjustment.
 
-Every iteration of the warp optimization of regressed Gaussian processes (WORG) 
-method described here has two phases. The first is an estimation phase where 
-the Gaussian process model is built and evaluated. The second takes the 
-deployment schedule from the estimation phase and runs it in a fuel cycle 
-simulator. The results of the simulator of the $s$-th iteration are then 
-used to inform the model on the $(s+1)$-th iteration. 
+Every iteration of the warp optimization of regressed Gaussian processes (WORG)
+method described here has two phases. The first is an estimation phase where
+the Gaussian process model is built and evaluated. The second takes the
+deployment schedule from the estimation phase and runs it in a fuel cycle
+simulator. The results of the simulator of the $s$-th iteration are then
+used to inform the model on the $(s+1)$-th iteration.
 
-Inside of each estimation phase there are three possible strategies for 
-choosing the next deployment schedule.  The first is to sample of the 
-space of all possible deployment strategies stochastically and then take the 
+Inside of each estimation phase there are three possible strategies for
+choosing the next deployment schedule.  The first is to sample of the
+space of all possible deployment strategies stochastically and then take the
 best guess.  The second is to search through the inner product of all choices,
 picking the best option for each deployment parameter. The third strategy
 is to perform the two previous strategies and determine which one has picked
 the better guess.
 
-Nuclear fuel cycle demand curve optimization faces many challenges. 
-Foremost among these is that even though the demand curve is specified on 
-the range of the real numbers, the optimization parameters are fundamentally 
-integral in nature. For a discrete time simulator, deployments can only 
-be issued in multiples of the size of the time step 
-\cite{kelton2000simulation}. Furthermore, 
-it is not possible to deploy only part of a facility; the facility is either 
-deployed or it is not. While it may be possible to deploy a facility and 
+Nuclear fuel cycle demand curve optimization faces many challenges.
+Foremost among these is that even though the demand curve is specified on
+the range of the real numbers, the optimization parameters are fundamentally
+integral in nature. For a discrete time simulator, deployments can only
+be issued in multiples of the size of the time step
+\cite{kelton2000simulation}. Furthermore,
+it is not possible to deploy only part of a facility; the facility is either
+deployed or it is not. While it may be possible to deploy a facility and
 only run it at partial capacity, most fuel cycle models do not support such
 a feature for
-keystone facilities.  For example, it is unlikely that a utility would build 
-a new reactor only to run it at 50\% power. Thus, deployment is an integer 
+keystone facilities.  For example, it is unlikely that a utility would build
+a new reactor only to run it at 50\% power. Thus, deployment is an integer
 programming problem, as opposed to its easier linear programming cousin
 \cite{vanderbei2001linear}.
 
-As an integer programming problem, the option space is combinatorially 
-large. Assuming a 50 year deployment schedule where no more than 3 facilities 
-are allowed to be deployed each time step, there are more than $10^{30}$ 
-combinations. If every simulation took a very generous 1 sec, simulating 
+As an integer programming problem, the option space is combinatorially
+large. Assuming a 50 year deployment schedule where no more than 3 facilities
+are allowed to be deployed each time step, there are more than $10^{30}$
+combinations. If every simulation took a very generous 1 sec, simulating
 each option would still take $\approx 3\times10^{12}$ times the current age
 of the universe.
 
-Moreover because all of the parameters are integral, there is not a 
-meaningful formulation of a continuous Jacobian. Derivative-free optimizers are 
-required. Methods such as particle swarm \cite{kennedy2010particle}, 
-pswarm \cite{vaz2009pswarm}, and the 
-simplex method \cite{vanderbei2001linear} all could work.  However, typical 
+Moreover because all of the parameters are integral, there is not a
+meaningful formulation of a continuous Jacobian. Derivative-free optimizers are
+required. Methods such as particle swarm \cite{kennedy2010particle},
+pswarm \cite{vaz2009pswarm}, and the
+simplex method \cite{vanderbei2001linear} all could work.  However, typical
 implementations require
 more evaluations of the objective function (i.e. fuel cycle simulations)
-than are within an \emph{in situ} budget. 
+than are within an \emph{in situ} budget.
 
-Even the usual case of 
-Gaussian process optimization (sometimes known as kriging) 
-\cite{osborne2009gaussian,simpson2001kriging} will still 
+Even the usual case of
+Gaussian process optimization (sometimes known as kriging)
+\cite{osborne2009gaussian,simpson2001kriging} will still
 require too many full realizations in order to form an accurate model.
-WORG, on the other hand, uses the dynamic time warping distance as a 
-measure of how two time series differ. This is because the DTW distance is 
+WORG, on the other hand, uses the dynamic time warping distance as a
+measure of how two time series differ. This is because the DTW distance is
 more separative than the typical
-$L_1$ norm. Such additional separation drives the estimation phase to make 
+$L_1$ norm. Such additional separation drives the estimation phase to make
 better choices
-sooner. This in turn helps the overall algorithm converge on a reasonable 
-deployment schedule sooner. 
-The stochastic strategy for WORG additionally utilizes Gaussian processes to 
+sooner. This in turn helps the overall algorithm converge on a reasonable
+deployment schedule sooner.
+The stochastic strategy for WORG additionally utilizes Gaussian processes to
 weight the choice of parameters. This guides the guesses for the deployment
-schedules such that fewer guesses are needed while simultaneously 
-not forbidding  
+schedules such that fewer guesses are needed while simultaneously
+not forbidding
 any option.  So while WORG relies on Gaussian processes, it does so in a way
 that is distinct from normal kriging. WORG
-takes advantage of the \emph{a priori} knowledge that a deployment 
-schedule is requested to meet a demand curve. This is not a strategy a 
+takes advantage of the \emph{a priori} knowledge that a deployment
+schedule is requested to meet a demand curve. This is not a strategy a
 generic, off-the-shelf optimizer would be capable of implementing.
 
-The structure of the WORG algorithm is detailed in \S\ref{method}. 
-The different strategies for selecting a best guess estimate of the 
+Furthermore, note that both Gaussian processes and
+DTW are multivariate constructs. This translates directly to WORG being
+a multivariate methodology. In practice, WORG to may meet many
+demand curves at the same time, such as say producing a given amount of
+electricity while also minimizing repository heat load and separated
+transuranics. Furthermore, it may meet such demand by exploring the
+independent deployment schedules of numerous facility types, such as
+light-water reactors, fast reactors, or even support facilities such as
+separations. In this paper, the WORG algorithm is expressed generically.
+However, the example problem used is a fiducial once-through fuel cycle
+with a power demand objective. This basic case is meant only as an
+intuitive demonstration of the method. Multivariate objectives and deployments
+are expected to follow in future efforts.
+
+The structure of the WORG algorithm is detailed in \S\ref{method}.
+The different strategies for selecting a best guess estimate of the
 deployment schedule are then discussed in \S\ref{selecting}. Performance
-and results of the method for a sample once-through fuel cycle scenario 
+and results of the method for a sample once-through fuel cycle scenario
 are presented in \S\ref{results}. Finally, \S\ref{conclusion} summarizes
 WORG and lists opportunities for future work.
