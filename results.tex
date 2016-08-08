@@ -1,32 +1,35 @@
 \section{Results \& Performance}
 \label{results}
 
-To demonstrate the three variant WORG methods, an unconstrained 
-once-through fuel cycle is modeled with the Cyclus simulator 
+To demonstrate the three variant WORG methods, an unconstrained
+once-through fuel cycle is modeled with the Cyclus simulator
 \cite{DBLP:journals/corr/HuffGCFMOSSW15}. In such a scenario, uranium
-mining, enrichment, fuel fabrication, and storage all have effectively 
+mining, enrichment, fuel fabrication, and storage all have effectively
 infinite capacities. The only meaningful constraints on the system are
-how many light-water reactors (LWR) are built.
+how many light-water reactors (LWR) are built.\footnote{The relevant
+optimizier implementation and Cyclus input file are available at
+\url{https://github.com/scopatz/fc-deploy-opt}. The entry point for
+the implementation discussed here is the `optimizer.ipynb' notebook.}
 
 The base simulation begins with 100 reactors in 2016 that each produce
 1 GWe, have an 18 month batch length with a one month reload time.
-The initial fleet of LWRs retires evenly over the 40 years from 2016 to 
-2056. All new reactors have 60 year life times.  The simulation itself 
-follows 20 years from 2016 to 2035. This is on the higher end of 
-\emph{in situ} time horizons expected, which presumably 
+The initial fleet of LWRs retires evenly over the 40 years from 2016 to
+2056. All new reactors have 60 year life times.  The simulation itself
+follows 20 years from 2016 to 2035. This is on the higher end of
+\emph{in situ} time horizons expected, which presumably
 will be in the neighborhood of 1, 5, 10, or 20 years.
 
-The study here compares how WORG performs for 0\% (steady state), 1\%, 
+The study here compares how WORG performs for 0\% (steady state), 1\%,
 and 2\% growth curves from an initial 90 GWe target. These are examined
 using the three estimation methods variants described in the previous section.
-Calling $\rho$ the growth rate as a 
+Calling $\rho$ the growth rate as a
 fraction, the demand curve is thus,
 \begin{equation}
 \label{f-rate}
 f(t) = 90 (1 + \rho)^t
 \end{equation}
-Moreover, the upper bound for the number of deployable facilities at 
-each time is set to be the ceiling of ten times the total growth. 
+Moreover, the upper bound for the number of deployable facilities at
+each time is set to be the ceiling of ten times the total growth.
 That is, assuming ten facilities at most could be deployed in the first
 year, increase the upper bound along with the growth rate.  This yields
 the following expression for $N$.
@@ -34,39 +37,39 @@ the following expression for $N$.
 \label{n-rate}
 N(t) = \left\lceil 10 (1 + \rho)^t\right\rceil
 \end{equation}
-The lower bound for the number of deployed reactors is taken to be the 
-zero vector, $M = \mathbf{0}$.  A maximum of twenty simulations are allowed, 
+The lower bound for the number of deployed reactors is taken to be the
+zero vector, $M = \mathbf{0}$.  A maximum of twenty simulations are allowed,
 or $S = 20$.
-This is because an \emph{in situ} method cannot afford many optimization 
+This is because an \emph{in situ} method cannot afford many optimization
 iterations. The random seed for all optimizations was 424242.
 
-Note that because of the integral nature of facility deployment, 
-exactly matching a continuous demand curve is not possible in general. 
-Slight over- and under-prediction are expected for most points in time. 
-Furthermore, 
-it is unlikely that the initial facilities will match the demand curve 
-themselves. If the initial facilities do no meet the demand on their own, 
+Note that because of the integral nature of facility deployment,
+exactly matching a continuous demand curve is not possible in general.
+Slight over- and under-prediction are expected for most points in time.
+Furthermore,
+it is unlikely that the initial facilities will match the demand curve
+themselves. If the initial facilities do no meet the demand on their own,
 then the optimized deployment schedule is capable making up the difference.
-However if the initial facilities produce more than the demand curve, 
+However if the initial facilities produce more than the demand curve,
 the the optimizer is only capable of deploying zero facilities at these
-times. The WORG method does not help make radical adjustments to 
-accommodate 
-problems with the initial conditions, such as when 50 GWe are demanded 
+times. The WORG method does not help make radical adjustments to
+accommodate
+problems with the initial conditions, such as when 50 GWe are demanded
 but 100 GWe are already being produced.
 
 First examine Figures \ref{deploy-0} - \ref{deploy-2} which
 show the optimized deployment schedule for the three estimation methods.
 The figures represent the 0\%, 1\% and 2\% growth curves respectively.
 Figures \ref{deploy-0} \& \ref{deploy-1} show that the \stochastic method
-has the highest number of facilities deployed at any single time. In the 
-2\% case, the \allflag method predicts the largest number of facilities 
+has the highest number of facilities deployed at any single time. In the
+2\% case, the \allflag method predicts the largest number of facilities
 deployed.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{deploy-0.eps}
-\caption{Optimized deployment schedule $\Theta$ for a 0\% growth (steady 
-state) demand curve. The number of deployed facilities shown are 
+\caption{Optimized deployment schedule $\Theta$ for a 0\% growth (steady
+state) demand curve. The number of deployed facilities shown are
 for the \stochastic (black), \innerprod (green), and \allflag (purple)
 estimation methods.}
 \label{deploy-0}
@@ -75,8 +78,8 @@ estimation methods.}
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{deploy-1.eps}
-\caption{Optimized deployment schedule $\Theta$ for a 1\% growth 
-demand curve. The number of deployed facilities shown are 
+\caption{Optimized deployment schedule $\Theta$ for a 1\% growth
+demand curve. The number of deployed facilities shown are
 for the \stochastic (black), \innerprod (green), and \allflag (purple)
 estimation methods.}
 \label{deploy-1}
@@ -85,8 +88,8 @@ estimation methods.}
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{deploy-2.eps}
-\caption{Optimized deployment schedule $\Theta$ for a 2\% growth 
-demand curve. The number of deployed facilities shown are 
+\caption{Optimized deployment schedule $\Theta$ for a 2\% growth
+demand curve. The number of deployed facilities shown are
 for the \stochastic (black), \innerprod (green), and \allflag (purple)
 estimation methods.}
 \label{deploy-2}
@@ -96,21 +99,21 @@ estimation methods.}
 
 More important than the deployment schedules themselves, however, are the
 production curves that they elicit.
-Figures \ref{demand-product-stochastic} - 
+Figures \ref{demand-product-stochastic} -
 \ref{demand-product-all} display the
 power production for the best-guess deployment schedule $G_1$ (solid lines),
-production for the second best schedule $G_2$ (dotted lines), 
-and demand curves (dashed lines) for 0\%, 1\%, and 2\% growth. 
+production for the second best schedule $G_2$ (dotted lines),
+and demand curves (dashed lines) for 0\%, 1\%, and 2\% growth.
 The figures show each estimation mechanism separately.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{demand-product-stochastic.eps}
-\caption{Power production to demand comparison for 20 year deployment 
+\caption{Power production to demand comparison for 20 year deployment
 schedule optimization using only the \stochastic estimation method.
-0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines 
-represent the best guess deployment schedule.  Dotted lines are represent 
-the second best guess deployment schedule. Dashed lines represent the 
+0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines
+represent the best guess deployment schedule.  Dotted lines are represent
+the second best guess deployment schedule. Dashed lines represent the
 demand curve that is targeted.
 }
 \label{demand-product-stochastic}
@@ -119,11 +122,11 @@ demand curve that is targeted.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{demand-product-inner-product.eps}
-\caption{Power production to demand comparison for 20 year deployment 
+\caption{Power production to demand comparison for 20 year deployment
 schedule optimization using only the \innerprod estimation method.
-0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines 
-represent the best guess deployment schedule.  Dotted lines are represent 
-the second best guess deployment schedule. Dashed lines represent the 
+0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines
+represent the best guess deployment schedule.  Dotted lines are represent
+the second best guess deployment schedule. Dashed lines represent the
 demand curve that is targeted.
 }
 \label{demand-product-inner-product}
@@ -132,65 +135,65 @@ demand curve that is targeted.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{demand-product-all.eps}
-\caption{Power production to demand comparison for 20 year deployment 
-schedule optimization using the \allflag estimation method that selects the 
+\caption{Power production to demand comparison for 20 year deployment
+schedule optimization using the \allflag estimation method that selects the
 best of both \stochastic and \innerprod estimations.
-0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines 
-represent the best guess deployment schedule.  Dotted lines are represent 
-the second best guess deployment schedule. Dashed lines represent the 
+0\%, 1\%, and 2\% growth rates starting at 90 GWe are shown. Solid lines
+represent the best guess deployment schedule.  Dotted lines are represent
+the second best guess deployment schedule. Dashed lines represent the
 demand curve that is targeted.}
 \label{demand-product-all}
 \end{figure}
 
-As seen in Figure \ref{demand-product-stochastic}, the \stochastic only 
+As seen in Figure \ref{demand-product-stochastic}, the \stochastic only
 estimations follow the trend line of the growth curve.  However, only for
-a few regions such as for 2\% growth between 2025 - 2030, does the 
-production very closely match the the demand.  The second best guess for the 
-deployment schedule shows a relatively large degree of eccentricity. This 
-indicates that $G_2$ at the end of the optimization is there to show the 
-Gaussian process model regions in the $\Theta$ option space that do not work. 
+a few regions such as for 2\% growth between 2025 - 2030, does the
+production very closely match the the demand.  The second best guess for the
+deployment schedule shows a relatively large degree of eccentricity. This
+indicates that $G_2$ at the end of the optimization is there to show the
+Gaussian process model regions in the $\Theta$ option space that do not work.
 
-Alternatively the inner product search estimation can be seen in Figure 
+Alternatively the inner product search estimation can be seen in Figure
 \ref{demand-product-inner-product}. This method does a reasonable job of
 predicting a steady state scenario at later times. However, the 1\% and 2\%
 curves are largely under-predicted.  For the 2\% case, this is so severe
-as to be considered wholly wrong. This situation arises because the 
+as to be considered wholly wrong. This situation arises because the
 \innerprod method can enter into deterministic traps where the same cycle
 of deployment schedules is predicted forever.  If such a trap is fallen
-into when the 
+into when the
 production curve is far from an optimum, the inner product method does not
 yield a sufficiently close guess of the deployment schedule.
 
 However, combining the stochastic and inner product estimation methods limits
-the weakness of each method. Figure \ref{demand-product-all} shows the 
-production and demand information for the \allflag estimation flag. 
-By inspection, 
-this method produces production curves that match the demand much more 
-closely. This is especially true for later times. Over-prediction 
-discrepancies for early times come from the fact the initially deployed 
-facilities (100 LWRs with 18 month cycles) does not precisely match an 
-initial 90 GWe target. The problem was specified this way in order to show 
-that reasonable deployments are still selected even in slightly 
+the weakness of each method. Figure \ref{demand-product-all} shows the
+production and demand information for the \allflag estimation flag.
+By inspection,
+this method produces production curves that match the demand much more
+closely. This is especially true for later times. Over-prediction
+discrepancies for early times come from the fact the initially deployed
+facilities (100 LWRs with 18 month cycles) does not precisely match an
+initial 90 GWe target. The problem was specified this way in order to show
+that reasonable deployments are still selected even in slightly
 unreasonable situations.
 
-Still, the main purpose of the WORG algorithm is to converge as quickly as 
-possible to a reasonable best-guess $\Theta$. The limiting factor is the 
-number of 
-predictive simulations which must be run. WORG will always execute 
+Still, the main purpose of the WORG algorithm is to converge as quickly as
+possible to a reasonable best-guess $\Theta$. The limiting factor is the
+number of
+predictive simulations which must be run. WORG will always execute
 at least three full simulations: the lower bound, the upper bound, and one
-iteration of the optimization loop. A reasonable limit on the total number 
+iteration of the optimization loop. A reasonable limit on the total number
 of simulations $S$ is 20.  For an \emph{in situ} calculator, it is unlikely
-to want to compute more than this number of sub-simulations to predict 
-the deployment schedule for the next 1, 5, 10, or 20 years. However, it 
+to want to compute more than this number of sub-simulations to predict
+the deployment schedule for the next 1, 5, 10, or 20 years. However, it
 may be possible to limit $S$ to significantly below 20 as well.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\textwidth]{converge-0per.eps}
 \caption{Convergence of 0\% growth rate solution for the distance between
-the demand and production curves $d(f, g)$ as a function of the number of 
+the demand and production curves $d(f, g)$ as a function of the number of
 simulations. The three estimation methods are shown. Additionally, the
-$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod, 
+$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod,
 or \allflag method was selected as the best fit. For $2 < s$, the \allflag
 will select either $S$ or $I$.
 }
@@ -201,9 +204,9 @@ will select either $S$ or $I$.
 \centering
 \includegraphics[width=0.9\textwidth]{converge-1per.eps}
 \caption{Convergence of 1\% growth rate solution for the distance between
-the demand and production curves $d(f, g)$ as a function of the number of 
+the demand and production curves $d(f, g)$ as a function of the number of
 simulations. The three estimation methods are shown. Additionally, the
-$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod, 
+$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod,
 or \allflag method was selected as the best fit. For $2 < s$, the \allflag
 will select either $S$ or $I$.
 }
@@ -214,33 +217,33 @@ will select either $S$ or $I$.
 \centering
 \includegraphics[width=0.9\textwidth]{converge-2per.eps}
 \caption{Convergence of 2\% growth rate solution for the distance between
-the demand and production curves $d(f, g)$ as a function of the number of 
+the demand and production curves $d(f, g)$ as a function of the number of
 simulations. The three estimation methods are shown. Additionally, the
-$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod, 
+$S$, $I$, and $A$ marker represent whether the \stochastic, \innerprod,
 or \allflag method was selected as the best fit. For $2 < s$, the \allflag
 will select either $S$ or $I$.
 }
 \label{converge-2per}
 \end{figure}
 
-Figures \ref{converge-0per} - \ref{converge-2per} demonstrate a convergence 
-study for the three 
+Figures \ref{converge-0per} - \ref{converge-2per} demonstrate a convergence
+study for the three
 different growth rates as a function of the number of simulations $s$.
 These three figures demonstrate important properties of the WORG method.
 The first is that the \allflag estimation method here consistently has
-the lowest minimum dynamic time warping distance, and thus the best guess 
+the lowest minimum dynamic time warping distance, and thus the best guess
 for the deployment schedule $\Theta$.  Furthermore, the \allflag curves
 in these figures show that the best estimation method consistently switches
-between the inner product search and stochastic search. These imply 
-that together the \stochastic and \innerprod methods converge more quickly 
+between the inner product search and stochastic search. These imply
+that together the \stochastic and \innerprod methods converge more quickly
 that the sum of their parts.  This is particularly visible in the 0\% growth
 rate case seen in Figure \ref{converge-0per}.
 
-Additionally, These convergence plots show that the majority of the 
-$\Theta$ selection gains are made by $s=10$.  Simulations past ten may 
-show differential improvement for the \allflag method.  However, they 
+Additionally, These convergence plots show that the majority of the
+$\Theta$ selection gains are made by $s=10$.  Simulations past ten may
+show differential improvement for the \allflag method.  However, they
 do not tend to generate any measurable improvement for \stochastic or
-\innerprod selection mechanisms. Furthermore, most of the gains for the 
+\innerprod selection mechanisms. Furthermore, most of the gains for the
 \allflag method are realized by simulation five or six. Thus a reduction
 by a factor of two to four in the number of simulations is available.
 This equates directly to a like reduction in computational cost.
@@ -248,27 +251,27 @@ This equates directly to a like reduction in computational cost.
 Moreover,
 Figures \ref{converge-0per} - \ref{converge-2per} also show the tendency of
 the \innerprod method to become deterministically stuck when used on its own.
-In all three cases the \innerprod method resolves to a constant by 
+In all three cases the \innerprod method resolves to a constant by
 simulation five or ten.  In the 1\% case, this solution happens to be quite close
 to the solution predicted by the \allflag method.  In the 0\% case, this
-constant is meaningfully distinct, but is still more akin to the \stochastic 
+constant is meaningfully distinct, but is still more akin to the \stochastic
 solution than the \allflag solution.  In the 2\% case, the converged \innerprod
 result has little to do with the \allflag prediction.  Thus it is not
-recommended to use \innerprod on its own. While it may succeed, it is too 
+recommended to use \innerprod on its own. While it may succeed, it is too
 risky because it may cease improving at the wrong place.
 
 The \stochastic estimation method is also prone to similar cyclic behavior.
-However, in the \innerprod method, 
-is the second best guess $G_2$ is also in a constant prediction cycle along 
-with $G_1$.  With the stochastic search, the second best 
-guess has more freedom to roam the option space, creating potentially 
-different Gaussian process models with each iteration $s$.  Eventually, given 
-enough guesses and enough iterations, the stochastic model will break 
+However, in the \innerprod method,
+is the second best guess $G_2$ is also in a constant prediction cycle along
+with $G_1$.  With the stochastic search, the second best
+guess has more freedom to roam the option space, creating potentially
+different Gaussian process models with each iteration $s$.  Eventually, given
+enough guesses and enough iterations, the stochastic model will break
 out of a local optimum to perhaps find a better global optimum elsewhere.
 For the \emph{in situ} use case, though, eventual solution is not fast
 enough.  The inner product search spans regions that the stochastic weighting
 labeled as unlikely.  This assist is what enables the \allflag method
-to converge faster than the stochastic method on its own.  That said, 
-if the \emph{in situ} use case is not relevant, the stochastic method on 
+to converge faster than the stochastic method on its own.  That said,
+if the \emph{in situ} use case is not relevant, the stochastic method on
 its own could be used without any algorithmic qualms.
 
