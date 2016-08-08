@@ -1,12 +1,16 @@
-A method for quickly determining deployment schedules that meet a given 
-fuel cycle demand is presented here. This algorithm is fast enough to 
+A method for quickly determining deployment schedules that meet any given
+fuel cycle demands is presented here. This algorithm is fast enough to
 perform \emph{in situ} within low-fidelity fuel cycle simulators. It uses
-Gaussian process regression models to predict the production curve as a 
+Gaussian process regression models to predict the production curve as a
 function of time and the number of deployed facilities. Each of these
 predictions is measured against the demand curve using the dynamic time
 warping distance. The minimum distance deployment schedule is evaluated
-in a full fuel cycle simulation, whose generated production curve 
+in a full fuel cycle simulation, whose generated production curve
 then informs the model on the next optimization iteration. The method
-converges within five to ten iterations to a distance that is less than one 
+converges within five to ten iterations to a distance that is less than one
 percent of the total deployable production. A representative once-through
 fuel cycle is used to demonstrate the methodology for reactor deployment.
+However, the algorithm itself is multivariate and maybe used to determine
+deployment schedules of many facilities types that meet a number of
+independent criteria simultaneously. The once-through, electricity production
+example was chosen for the simplicity of illustrating the method.
