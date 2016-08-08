@@ -6,11 +6,18 @@ once-through fuel cycle is modeled with the Cyclus simulator
 \cite{DBLP:journals/corr/HuffGCFMOSSW15}. In such a scenario, uranium
 mining, enrichment, fuel fabrication, and storage all have effectively
 infinite capacities. The only meaningful constraints on the system are
-how many light-water reactors (LWR) are built.\footnote{
-\url{https://github.com/scopatz/fc-deploy-opt} contains the relevant
-optimizier implementation and Cyclus input files. The entry point for
-the implementation discussed in this paper is the `optimizer.ipynb'
-notebook.}
+how many light-water reactors (LWR) are
+built.\footnote{\url{https://github.com/scopatz/fc-deploy-opt}
+contains the relevant optimizier implementation and Cyclus input files.
+The entry point for the implementation discussed in this paper is the
+`optimizer.ipynb' notebook.}
+
+When Cyclus is executed here, it is representative of the inner loop
+evaluation of a deployment schedule guess, seen as the \texttt{run\_sim()}
+call in Listing \ref{worg-pseudo}. When implementing WORG in fuel cycle
+simulator \emph{in situ}, these Cyclus executions would be replaced by
+a look ahead sub-simulation. For expediancy in development of the WORG
+algorithm, this work simply simulated the simulator.
 
 The base simulation begins with 100 reactors in 2016 that each produce
 1 GWe, have an 18 month batch length with a one month reload time.
