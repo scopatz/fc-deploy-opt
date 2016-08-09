@@ -10,7 +10,7 @@ how many light-water reactors (LWR) are
 built.\footnote{\url{https://github.com/scopatz/fc-deploy-opt}
 contains the relevant optimizier implementation and Cyclus input files.
 The entry point for the implementation discussed in this paper is the
-`optimizer.ipynb' notebook.}
+`cases.ipynb' notebook.}
 
 When Cyclus is executed here, it is representative of the inner loop
 evaluation of a deployment schedule guess, seen as the \texttt{run\_sim()}
@@ -183,6 +183,19 @@ facilities (100 LWRs with 18 month cycles) does not precisely match an
 initial 90 GWe target. The problem was specified this way in order to show
 that reasonable deployments are still selected even in slightly
 unreasonable situations.
+
+With respect to the differences between the production and demand seen in
+Figure \ref{demand-product-all}, if the decommisioning schedule is known
+it is always possible to pick a deployment schedule that directly
+compensates for the decomissions. However, the decomissioning schedule
+cannot always be garaunteed. This is particularly true in agent-based
+simulators where unforeseen decomissions may be triggered on any time step
+or license extensions may be granted (and decomissioning avoided) at
+run time.
+WORG, in its general formulation here, does not take into account any
+expected decomissioning information. This helps the methods generality
+but may weaken its solution or increase the number of iterations
+required.
 
 Still, the main purpose of the WORG algorithm is to converge as quickly as
 possible to a reasonable best-guess $\Theta$. The limiting factor is the

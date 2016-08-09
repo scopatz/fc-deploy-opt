@@ -72,6 +72,13 @@ The Cyclus fuel cycle simulator looks most promising as a platform
 for such work to be undertaken. However, many technical roadblocks
 on the software side remain, even for Cyclus.
 
+Additionally, the WORG method does not utilize an expected decomissioning
+schedule. If it is known prior to the simulation, this information
+could help focus on a deployment schedule solution faster and more precisely.
+Futrue work on WORG will consider optionally providing the decomisiong inforation.
+This will likely affect the initial two optimizer cases and the
+$M_p$ and $N_p$ deployment bounds.
+
 Furthermore, adding \emph{in situ} capability also adds the additional
 degree of freedom of how often to run the deployment schedule optimizer.
 Running WORG each and every
