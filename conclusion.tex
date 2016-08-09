@@ -44,8 +44,8 @@ curve. Furthermore, several of these demands and deployments can be
 examined simultaneously. For instance, deployment schedules for light-water,
 fast reactors, pebble-bed reactors, and separations facilities may be optimized
 together on the joint
-bases of minimizing cost, minimizing separated transuranics, and achieiving
-a specified power demand. The WORG algorithm fuilly supports such mutlivariate
+bases of minimizing cost, minimizing separated transuranics, and achieving
+a specified power demand. The WORG algorithm fully supports such multivariate
 problems. Reactors and power generation were chosen for study here as the
 representative keystone example, though the algorithm is not tied to this
 particular problem.
@@ -54,7 +54,7 @@ The speed of convergence of the WORG algorithm is effectively required for
 high-fidelity simulation optimization. Single realizations may take hours or
 longer to run. Executing hundred, thousands, or more realizations becomes
 impractical. On the other hand, lower fidelity simulations that have short
-execution times may be perfectly well optimizied by an \emph{ex situ}
+execution times may be perfectly well optimized by an \emph{ex situ}
 method. With fast run times, WORG would be implemented \emph{in situ} as
 a mechanism for automation and avoiding external wrapper codes implicit
 in an \emph{ex situ} optimizer. The speed of convergence for lower fidelity
@@ -72,10 +72,10 @@ The Cyclus fuel cycle simulator looks most promising as a platform
 for such work to be undertaken. However, many technical roadblocks
 on the software side remain, even for Cyclus.
 
-Additionally, the WORG method does not utilize an expected decomissioning
+Additionally, the WORG method does not utilize an expected decommissioning
 schedule. If it is known prior to the simulation, this information
 could help focus on a deployment schedule solution faster and more precisely.
-Futrue work on WORG will consider optionally providing the decomisiong inforation.
+Future work on WORG will consider optionally providing the decommissioning information.
 This will likely affect the initial two optimizer cases and the
 $M_p$ and $N_p$ deployment bounds.
 
